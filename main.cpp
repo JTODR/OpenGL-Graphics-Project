@@ -25,8 +25,8 @@ MESH TO LOAD
 ----------------------------------------------------------------------------*/
 // this mesh is a dae file format but you should be able to use any other format too, obj is typically what is used
 // put the mesh in your project directory, or provide a filepath for it here
-#define MESH_NAME1 "../trainscene1.obj"
-#define MESH_NAME2 "../camaro_exported.obj"
+#define MESH_NAME1 "../camaro_shell.obj"
+#define MESH_NAME2 "../camaro_wheel3.obj"
 /*----------------------------------------------------------------------------
 ----------------------------------------------------------------------------*/
 
@@ -366,7 +366,7 @@ void display() {
 	mat4 view = identity_mat4();
 	mat4 persp_proj = perspective(45.0, (float)width / (float)height, 0.1, 100.0);
 	mat4 model = identity_mat4();
-	model = rotate_y_deg(model, rotate_y);
+	//model = rotate_y_deg(model, rotate_y);
 	view = translate(view, vec3(view_x, view_y, view_z));
 	//view = translate(view, vec3(0, 0, 0));
 	view = rotate_x_deg(view, rotate_camera_x);
@@ -390,8 +390,9 @@ void display() {
 	view = identity_mat4();
 	persp_proj = perspective(45.0, (float)width / (float)height, 0.1, 100.0);
 	model = identity_mat4();
-	//model = rotate_y_deg(model, rotate_y);
-	model = translate(model, vec3(trans_car_x, trans_car_y, trans_car_z));
+	model = rotate_x_deg(model, rotate_y);
+	//model = translate(model, vec3(trans_car_x, trans_car_y, trans_car_z));
+	model = translate(model, vec3(0.9,0.65,1.4));
 	view = translate(view, vec3(view_x, view_y, view_z));
 	//view = translate(view, vec3(0, 0, 0));
 	view = rotate_x_deg(view, rotate_camera_x);
@@ -424,9 +425,9 @@ void updateScene() {
 	last_time = curr_time;
 
 	//model_rotate += 0.01f;
-	 trans_car_z += 0.01f;
+	 //trans_car_z += 0.01f;
 	// rotate the model slowly around the y axis
-	//rotate_y += 0.2f;
+	rotate_y += 0.2f;
 	// Draw the next frame
 	glutPostRedisplay();
 }
