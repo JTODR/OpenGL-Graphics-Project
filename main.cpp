@@ -27,6 +27,7 @@ MESH TO LOAD
 // put the mesh in your project directory, or provide a filepath for it here
 #define MESH_NAME1 "../camaro_shell.obj"
 #define MESH_NAME2 "../camaro_wheel3.obj"
+#define MESH_NAME3 "../road_mesh3.obj"
 /*----------------------------------------------------------------------------
 ----------------------------------------------------------------------------*/
 
@@ -34,6 +35,7 @@ std::vector<float> g_vp, g_vn, g_vt;
 int g_point_count = 0;
 int point_count1 = 0;
 int point_count2 = 0;
+int point_count3 = 0;
 
 
 // Macro for indexing vertex buffer
@@ -51,6 +53,7 @@ GLuint loc1, loc2, loc3;
 GLfloat rotate_y = 0.0f;
 GLuint vao1;
 GLuint vao2;
+GLuint vao3;
 
 
 #pragma region MESH LOADING
@@ -296,10 +299,10 @@ void generateObjectBufferMesh() {
 	glBufferData(GL_ARRAY_BUFFER, point_count2 * 3 * sizeof(float), &g_vn[0], GL_STATIC_DRAW);
 
 	//	This is for texture coordinates which you don't currently need, so I have commented it out
-		unsigned int vt_vbo = 0;
+	/*	unsigned int vt_vbo = 0;
 		glGenBuffers (1, &vt_vbo);
 		glBindBuffer (GL_ARRAY_BUFFER, vt_vbo);
-		glBufferData (GL_ARRAY_BUFFER, g_point_count * 2 * sizeof (float), &g_vt[0], GL_STATIC_DRAW);
+		glBufferData (GL_ARRAY_BUFFER, g_point_count * 2 * sizeof (float), &g_vt[0], GL_STATIC_DRAW);*/
 
 	g_vp.clear();
 	g_vn.clear();
@@ -308,6 +311,51 @@ void generateObjectBufferMesh() {
 
 	glGenVertexArrays(1, &vao2);
 	glBindVertexArray(vao2);
+
+	glEnableVertexAttribArray(loc1);
+	glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
+	glVertexAttribPointer(loc1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(loc2);
+	glBindBuffer(GL_ARRAY_BUFFER, vn_vbo);
+	glVertexAttribPointer(loc2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+
+	////	This is for texture coordinates which you don't currently need, so I have commented it out
+	//	glEnableVertexAttribArray (loc3);
+	//	glBindBuffer (GL_ARRAY_BUFFER, vt_vbo);
+	//	glVertexAttribPointer (loc3, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+
+
+	//////////////////////////// MESH 3 /////////////////////////////////////
+	//g_point_count = 0;
+	load_mesh(MESH_NAME3);
+	point_count3 = g_point_count;
+	g_point_count = 0;
+	//unsigned int vp_vbo = 0;
+	loc1 = glGetAttribLocation(shaderProgramID, "vertex_position");
+	loc2 = glGetAttribLocation(shaderProgramID, "vertex_normal");
+	loc3 = glGetAttribLocation(shaderProgramID, "vertex_texture");
+
+	glGenBuffers(1, &vp_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
+	glBufferData(GL_ARRAY_BUFFER, point_count3 * 3 * sizeof(float), &g_vp[0], GL_STATIC_DRAW);
+
+	glGenBuffers(1, &vn_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vn_vbo);
+	glBufferData(GL_ARRAY_BUFFER, point_count3 * 3 * sizeof(float), &g_vn[0], GL_STATIC_DRAW);
+
+	//	This is for texture coordinates which you don't currently need, so I have commented it out
+	/*unsigned int vt_vbo = 0;
+	glGenBuffers(1, &vt_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vt_vbo);
+	glBufferData(GL_ARRAY_BUFFER, g_point_count * 2 * sizeof(float), &g_vt[0], GL_STATIC_DRAW);*/
+
+	g_vp.clear();
+	g_vn.clear();
+	g_vt.clear();
+
+
+	glGenVertexArrays(1, &vao3);
+	glBindVertexArray(vao3);
 
 	glEnableVertexAttribArray(loc1);
 	glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
@@ -341,7 +389,7 @@ GLfloat model_rotate = 0.0f;//90.0f;
 
 GLfloat trans_car_x = 0;
 GLfloat trans_car_y = 0;
-GLfloat trans_car_z = 0;
+GLfloat trans_car_z = -20;
 
 GLfloat rotate_wheel_deg = 0;
 
@@ -367,7 +415,7 @@ void display() {
 	mat4 view = identity_mat4();
 	mat4 persp_proj = perspective(45.0, (float)width / (float)height, 0.1, 100.0);
 	mat4 model1 = identity_mat4();
-	model1 = translate(model1, vec3(0, 0, trans_car_z));
+	model1 = translate(model1, vec3(0, 0.4, trans_car_z));
 	view = translate(view, vec3(view_x, view_y, view_z));
 	view = rotate_x_deg(view, rotate_camera_x);
 	view = rotate_y_deg(view, rotate_camera_y);
@@ -436,6 +484,21 @@ void display() {
 
 	glDrawArrays(GL_TRIANGLES, 0, point_count2);
 
+	glBindVertexArray(vao3);
+
+	// Road mesh
+	mat4 road_model = identity_mat4();
+	road_model = translate(road_model, vec3(0, 0, 0));
+	road_model = rotate_y_deg(road_model, 90.0f);
+	view = translate(view, vec3(view_x, view_y, view_z));
+	view = rotate_x_deg(view, rotate_camera_x);
+	view = rotate_y_deg(view, rotate_camera_y);
+
+	// update uniforms & draw
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, road_model.m);
+
+	glDrawArrays(GL_TRIANGLES, 0, point_count1);
+
 	glutSwapBuffers();
 }
 
@@ -452,7 +515,7 @@ void updateScene() {
 	last_time = curr_time;
 
 	//model_rotate += 0.01f;
-	trans_car_z += 0.01f;
+	trans_car_z += 0.05f;
 	// rotate the model slowly around the y axis
 	rotate_wheel_deg += 0.5f;
 	// Draw the next frame
