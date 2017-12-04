@@ -343,6 +343,7 @@ GLfloat trans_car_x = 0;
 GLfloat trans_car_y = 0;
 GLfloat trans_car_z = 0;
 
+GLfloat rotate_wheel_deg = 0;
 
 
 void display() {
@@ -362,10 +363,11 @@ void display() {
 	int proj_mat_location = glGetUniformLocation(shaderProgramID, "proj_matrix");
 
 
-	// Root of the Hierarchy
+	// Root of the Hierarchy - Car shell
 	mat4 view = identity_mat4();
 	mat4 persp_proj = perspective(45.0, (float)width / (float)height, 0.1, 100.0);
 	mat4 model = identity_mat4();
+	model = translate(model, vec3(0, 0, 0));
 	//model = rotate_y_deg(model, rotate_y);
 	view = translate(view, vec3(view_x, view_y, view_z));
 	//view = translate(view, vec3(0, 0, 0));
@@ -386,20 +388,71 @@ void display() {
 
 	glBindVertexArray(vao2);		//NB: This will allow us to select the second object
 
-	// Root of the Hierarchy
+	// Front left wheel
 	view = identity_mat4();
 	persp_proj = perspective(45.0, (float)width / (float)height, 0.1, 100.0);
 	model = identity_mat4();
-	model = rotate_x_deg(model, rotate_y);
-	//model = translate(model, vec3(trans_car_x, trans_car_y, trans_car_z));
+	model = rotate_x_deg(model, rotate_wheel_deg);
 	model = translate(model, vec3(0.9,0.65,1.4));
 	view = translate(view, vec3(view_x, view_y, view_z));
-	//view = translate(view, vec3(0, 0, 0));
 	view = rotate_x_deg(view, rotate_camera_x);
 	view = rotate_y_deg(view, rotate_camera_y);
-	//view = rotate_z_deg(view, rotate_camera_z);
 
-	//model = rotate_x_deg(model, model_rotate);
+	// update uniforms & draw
+	glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, persp_proj.m);
+	glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, view.m);
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, model.m);
+
+
+	glDrawArrays(GL_TRIANGLES, 0, point_count2);
+
+	// Front right wheel
+	view = identity_mat4();
+	persp_proj = perspective(45.0, (float)width / (float)height, 0.1, 100.0);
+	model = identity_mat4();
+	model = rotate_y_deg(model, 180.0);
+	model = rotate_x_deg(model, rotate_wheel_deg);
+	model = translate(model, vec3(-0.7, 0.65, 1.4));
+	view = translate(view, vec3(view_x, view_y, view_z));
+	view = rotate_x_deg(view, rotate_camera_x);
+	view = rotate_y_deg(view, rotate_camera_y);
+
+	// update uniforms & draw
+	glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, persp_proj.m);
+	glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, view.m);
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, model.m);
+
+
+	glDrawArrays(GL_TRIANGLES, 0, point_count2);
+
+	// Back left wheel
+	view = identity_mat4();
+	persp_proj = perspective(45.0, (float)width / (float)height, 0.1, 100.0);
+	model = identity_mat4();
+	model = rotate_x_deg(model, rotate_wheel_deg);
+	model = translate(model, vec3(0.9, 0.65, -1.2));
+	view = translate(view, vec3(view_x, view_y, view_z));
+	view = rotate_x_deg(view, rotate_camera_x);
+	view = rotate_y_deg(view, rotate_camera_y);
+
+	// update uniforms & draw
+	glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, persp_proj.m);
+	glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, view.m);
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, model.m);
+
+
+	glDrawArrays(GL_TRIANGLES, 0, point_count2);
+
+	// Back right wheel
+	view = identity_mat4();
+	persp_proj = perspective(45.0, (float)width / (float)height, 0.1, 100.0);
+	model = identity_mat4();
+	model = rotate_y_deg(model, 180.0);
+	model = rotate_x_deg(model, rotate_wheel_deg);
+	model = translate(model, vec3(-0.7, 0.65, -1.2));
+	view = translate(view, vec3(view_x, view_y, view_z));
+	view = rotate_x_deg(view, rotate_camera_x);
+	view = rotate_y_deg(view, rotate_camera_y);
 
 	// update uniforms & draw
 	glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, persp_proj.m);
@@ -427,7 +480,7 @@ void updateScene() {
 	//model_rotate += 0.01f;
 	 //trans_car_z += 0.01f;
 	// rotate the model slowly around the y axis
-	rotate_y += 0.2f;
+	rotate_wheel_deg += 0.2f;
 	// Draw the next frame
 	glutPostRedisplay();
 }
