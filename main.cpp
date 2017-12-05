@@ -5,6 +5,7 @@
 //Some Windows Headers (For Time, IO, etc.)
 #include <windows.h>
 #include <mmsystem.h>
+#include "SOIL.h"
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <iostream>
@@ -25,9 +26,9 @@ MESH TO LOAD
 ----------------------------------------------------------------------------*/
 // this mesh is a dae file format but you should be able to use any other format too, obj is typically what is used
 // put the mesh in your project directory, or provide a filepath for it here
-#define MESH_NAME1 "../camaro_shell.obj"
+#define MESH_NAME1 "../redcube6.obj"
 #define MESH_NAME2 "../camaro_wheel3.obj"
-#define MESH_NAME3 "../road_mesh6.obj"
+#define MESH_NAME3 "../road_mesh7.obj"
 /*----------------------------------------------------------------------------
 ----------------------------------------------------------------------------*/
 
@@ -36,6 +37,8 @@ int g_point_count = 0;
 int point_count1 = 0;
 int point_count2 = 0;
 int point_count3 = 0;
+
+
 
 
 // Macro for indexing vertex buffer
@@ -54,6 +57,8 @@ GLfloat rotate_y = 0.0f;
 GLuint vao1;
 GLuint vao2;
 GLuint vao3;
+
+GLuint tex;
 
 
 #pragma region MESH LOADING
@@ -234,7 +239,7 @@ void generateObjectBufferMesh() {
 	////////////////////////// MESH 1 /////////////////////////////////////
 
 	load_mesh(MESH_NAME1);
-
+	
 	point_count1 = g_point_count;
 	g_point_count = 0;
 
@@ -255,10 +260,13 @@ void generateObjectBufferMesh() {
 	glBufferData(GL_ARRAY_BUFFER, point_count1 * 3 * sizeof(float), &g_vn[0], GL_STATIC_DRAW);
 
 	//	This is for texture coordinates which you don't currently need, so I have commented it out
-	//	unsigned int vt_vbo = 0;
-	//	glGenBuffers (1, &vt_vbo);
-	//	glBindBuffer (GL_ARRAY_BUFFER, vt_vbo);
-	//	glBufferData (GL_ARRAY_BUFFER, g_point_count * 2 * sizeof (float), &g_vt[0], GL_STATIC_DRAW);
+
+	unsigned int vt_vbo = 0;
+	glGenBuffers (1, &vt_vbo);
+	glBindBuffer (GL_ARRAY_BUFFER, vt_vbo);
+	glBufferData (GL_ARRAY_BUFFER, point_count1 * 2 * sizeof (float), &g_vt[0], GL_STATIC_DRAW);
+	
+
 
 	g_vp.clear();
 	g_vn.clear();
@@ -268,6 +276,8 @@ void generateObjectBufferMesh() {
 	glGenVertexArrays(1, &vao1);
 	glBindVertexArray(vao1);
 
+	
+
 	glEnableVertexAttribArray(loc1);
 	glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
 	glVertexAttribPointer(loc1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
@@ -276,93 +286,113 @@ void generateObjectBufferMesh() {
 	glVertexAttribPointer(loc2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
 	//	This is for texture coordinates which you don't currently need, so I have commented it out
-	//	glEnableVertexAttribArray (loc3);
-	//	glBindBuffer (GL_ARRAY_BUFFER, vt_vbo);
-	//	glVertexAttribPointer (loc3, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+	// Load texture
+	glGenTextures(1, &tex);
+	glBindTexture(GL_TEXTURE_2D, tex);
+
+	int width1, height1;
+	unsigned char* image = SOIL_load_image("ball.png", &width1, &height1, 0, SOIL_LOAD_RGB);
+	glActiveTexture(GL_TEXTURE0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width1, height1, 0, GL_RGB8, GL_UNSIGNED_BYTE, image);
+	SOIL_free_image_data(image);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+	glEnableVertexAttribArray (loc3);
+	glBindBuffer (GL_ARRAY_BUFFER, vt_vbo);
+	glVertexAttribPointer (loc3, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+
+
+
+
 
 	//////////////////////////// MESH 2 /////////////////////////////////////
+	////g_point_count = 0;
+	//load_mesh(MESH_NAME2);
+	//point_count2 = g_point_count;
 	//g_point_count = 0;
-	load_mesh(MESH_NAME2);
-	point_count2 = g_point_count;
-	g_point_count = 0;
-	//unsigned int vp_vbo = 0;
-	loc1 = glGetAttribLocation(shaderProgramID, "vertex_position");
-	loc2 = glGetAttribLocation(shaderProgramID, "vertex_normal");
-	loc3 = glGetAttribLocation(shaderProgramID, "vertex_texture");
-	
-	glGenBuffers(1, &vp_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
-	glBufferData(GL_ARRAY_BUFFER, point_count2 * 3 * sizeof(float), &g_vp[0], GL_STATIC_DRAW);
+	////unsigned int vp_vbo = 0;
+	//loc1 = glGetAttribLocation(shaderProgramID, "vertex_position");
+	//loc2 = glGetAttribLocation(shaderProgramID, "vertex_normal");
+	//loc3 = glGetAttribLocation(shaderProgramID, "vertex_texture");
+	//
+	//glGenBuffers(1, &vp_vbo);
+	//glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
+	//glBufferData(GL_ARRAY_BUFFER, point_count2 * 3 * sizeof(float), &g_vp[0], GL_STATIC_DRAW);
 
-	glGenBuffers(1, &vn_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vn_vbo);
-	glBufferData(GL_ARRAY_BUFFER, point_count2 * 3 * sizeof(float), &g_vn[0], GL_STATIC_DRAW);
-
-	//	This is for texture coordinates which you don't currently need, so I have commented it out
-	/*	unsigned int vt_vbo = 0;
-		glGenBuffers (1, &vt_vbo);
-		glBindBuffer (GL_ARRAY_BUFFER, vt_vbo);
-		glBufferData (GL_ARRAY_BUFFER, g_point_count * 2 * sizeof (float), &g_vt[0], GL_STATIC_DRAW);*/
-
-	g_vp.clear();
-	g_vn.clear();
-	g_vt.clear();
-
-
-	glGenVertexArrays(1, &vao2);
-	glBindVertexArray(vao2);
-
-	glEnableVertexAttribArray(loc1);
-	glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
-	glVertexAttribPointer(loc1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	glEnableVertexAttribArray(loc2);
-	glBindBuffer(GL_ARRAY_BUFFER, vn_vbo);
-	glVertexAttribPointer(loc2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	//glGenBuffers(1, &vn_vbo);
+	//glBindBuffer(GL_ARRAY_BUFFER, vn_vbo);
+	//glBufferData(GL_ARRAY_BUFFER, point_count2 * 3 * sizeof(float), &g_vn[0], GL_STATIC_DRAW);
 
 	////	This is for texture coordinates which you don't currently need, so I have commented it out
-	//	glEnableVertexAttribArray (loc3);
+	///*	unsigned int vt_vbo = 0;
+	//	glGenBuffers (1, &vt_vbo);
 	//	glBindBuffer (GL_ARRAY_BUFFER, vt_vbo);
-	//	glVertexAttribPointer (loc3, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+	//	glBufferData (GL_ARRAY_BUFFER, g_point_count * 2 * sizeof (float), &g_vt[0], GL_STATIC_DRAW);*/
+
+	//g_vp.clear();
+	//g_vn.clear();
+	//g_vt.clear();
 
 
-	//////////////////////////// MESH 3 /////////////////////////////////////
+	//glGenVertexArrays(1, &vao2);
+	//glBindVertexArray(vao2);
+
+	//glEnableVertexAttribArray(loc1);
+	//glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
+	//glVertexAttribPointer(loc1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	//glEnableVertexAttribArray(loc2);
+	//glBindBuffer(GL_ARRAY_BUFFER, vn_vbo);
+	//glVertexAttribPointer(loc2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+
+	//////	This is for texture coordinates which you don't currently need, so I have commented it out
+	////	glEnableVertexAttribArray (loc3);
+	////	glBindBuffer (GL_ARRAY_BUFFER, vt_vbo);
+	////	glVertexAttribPointer (loc3, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+
+
+	////////////////////////////// MESH 3 /////////////////////////////////////
+	////g_point_count = 0;
+	//load_mesh(MESH_NAME3);
+	//point_count3 = g_point_count;
 	//g_point_count = 0;
-	load_mesh(MESH_NAME3);
-	point_count3 = g_point_count;
-	g_point_count = 0;
-	//unsigned int vp_vbo = 0;
-	loc1 = glGetAttribLocation(shaderProgramID, "vertex_position");
-	loc2 = glGetAttribLocation(shaderProgramID, "vertex_normal");
-	loc3 = glGetAttribLocation(shaderProgramID, "vertex_texture");
+	////unsigned int vp_vbo = 0;
+	//loc1 = glGetAttribLocation(shaderProgramID, "vertex_position");
+	//loc2 = glGetAttribLocation(shaderProgramID, "vertex_normal");
+	//loc3 = glGetAttribLocation(shaderProgramID, "vertex_texture");
 
-	glGenBuffers(1, &vp_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
-	glBufferData(GL_ARRAY_BUFFER, point_count3 * 3 * sizeof(float), &g_vp[0], GL_STATIC_DRAW);
+	//glGenBuffers(1, &vp_vbo);
+	//glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
+	//glBufferData(GL_ARRAY_BUFFER, point_count3 * 3 * sizeof(float), &g_vp[0], GL_STATIC_DRAW);
 
-	glGenBuffers(1, &vn_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vn_vbo);
-	glBufferData(GL_ARRAY_BUFFER, point_count3 * 3 * sizeof(float), &g_vn[0], GL_STATIC_DRAW);
+	//glGenBuffers(1, &vn_vbo);
+	//glBindBuffer(GL_ARRAY_BUFFER, vn_vbo);
+	//glBufferData(GL_ARRAY_BUFFER, point_count3 * 3 * sizeof(float), &g_vn[0], GL_STATIC_DRAW);
 
-	//	This is for texture coordinates which you don't currently need, so I have commented it out
-	/*unsigned int vt_vbo = 0;
-	glGenBuffers(1, &vt_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vt_vbo);
-	glBufferData(GL_ARRAY_BUFFER, g_point_count * 2 * sizeof(float), &g_vt[0], GL_STATIC_DRAW);*/
+	////	This is for texture coordinates which you don't currently need, so I have commented it out
+	///*unsigned int vt_vbo = 0;
+	//glGenBuffers(1, &vt_vbo);
+	//glBindBuffer(GL_ARRAY_BUFFER, vt_vbo);
+	//glBufferData(GL_ARRAY_BUFFER, g_point_count * 2 * sizeof(float), &g_vt[0], GL_STATIC_DRAW);*/
 
-	g_vp.clear();
-	g_vn.clear();
-	g_vt.clear();
+	//g_vp.clear();
+	//g_vn.clear();
+	//g_vt.clear();
 
 
-	glGenVertexArrays(1, &vao3);
-	glBindVertexArray(vao3);
+	//glGenVertexArrays(1, &vao3);
+	//glBindVertexArray(vao3);
 
-	glEnableVertexAttribArray(loc1);
-	glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
-	glVertexAttribPointer(loc1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	glEnableVertexAttribArray(loc2);
-	glBindBuffer(GL_ARRAY_BUFFER, vn_vbo);
-	glVertexAttribPointer(loc2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	//glEnableVertexAttribArray(loc1);
+	//glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
+	//glVertexAttribPointer(loc1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	//glEnableVertexAttribArray(loc2);
+	//glBindBuffer(GL_ARRAY_BUFFER, vn_vbo);
+	//glVertexAttribPointer(loc2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
 	////	This is for texture coordinates which you don't currently need, so I have commented it out
 	//	glEnableVertexAttribArray (loc3);
@@ -403,7 +433,9 @@ void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(shaderProgramID);
 
+	//glBindTexture(GL_TEXTURE_2D, tex);
 	glBindVertexArray(vao1);		//NB: This will allow us to select the first object
+	
 
 	//Declare your uniform variables that will be used in your shader
 	int matrix_location = glGetUniformLocation(shaderProgramID, "model_matrix");
@@ -415,89 +447,118 @@ void display() {
 	mat4 view = identity_mat4();
 	mat4 persp_proj = perspective(45.0, (float)width / (float)height, 0.1, 100.0);
 	mat4 model1 = identity_mat4();
-	model1 = translate(model1, vec3(0, 0.4, trans_car_z));
+	//model1 = translate(model1, vec3(0, 0.4, trans_car_z));
 	view = translate(view, vec3(view_x, view_y, view_z));
 	view = rotate_x_deg(view, rotate_camera_x);
 	view = rotate_y_deg(view, rotate_camera_y);
 
 	mat4 global1 = model1;
 
+	
 	// update uniforms & draw
 	glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, persp_proj.m);
 	glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, view.m);
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global1.m);
 
-	glDrawArrays(GL_TRIANGLES, 0, point_count1);
+	/*glGenTextures(1, &tex);
+	glBindTexture(GL_TEXTURE_2D, tex);
 
-	glBindVertexArray(vao2);		//NB: This will allow us to select the second object
+	int width1, height1;
+	unsigned char* image = SOIL_load_image("ball.png", &width1, &height1, 0, SOIL_LOAD_RGB);
+	glActiveTexture(GL_TEXTURE0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width1, height1, 0, GL_RGB8, GL_UNSIGNED_BYTE, image);
+	SOIL_free_image_data(image);
 
-	// Front left wheel
-	mat4 model2 = identity_mat4();
-	model2 = rotate_x_deg(model2, rotate_wheel_deg);
-	model2 = translate(model2, vec3(0.9,0.65,1.4));
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);*/
 
-	mat4 global2 = global1 * model2;
+	/*glBindTexture(GL_TEXTURE_2D, tex);
+	glActiveTexture(GL_TEXTURE0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	// update uniforms & draw
-	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global2.m);
+	int width, height;
+	unsigned char* image = SOIL_load_image("red.jpg", &width, &height, 0, SOIL_LOAD_RGB);
 
-
-	glDrawArrays(GL_TRIANGLES, 0, point_count2);
-
-	// Front right wheel
-	mat4 model3 = identity_mat4();
-	model3 = rotate_y_deg(model3, 180.0);
-	model3 = rotate_x_deg(model3, rotate_wheel_deg);
-	model3 = translate(model3, vec3(-0.7, 0.65, 1.4));
-
-	mat4 global3 = global1 * model3;
-
-	// update uniforms & draw
-	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global3.m);
-
-
-	glDrawArrays(GL_TRIANGLES, 0, point_count2);
-
-	// Back left wheel
-	mat4 model4 = identity_mat4();
-	model4 = rotate_x_deg(model4, rotate_wheel_deg);
-	model4 = translate(model4, vec3(0.9, 0.65, -1.2));
-
-	mat4 global4 = global1 * model4;
-
-	// update uniforms & draw
-	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global4.m);
-
-
-	glDrawArrays(GL_TRIANGLES, 0, point_count2);
-
-	// Back right wheel
-	mat4 model5 = identity_mat4();
-	model5 = rotate_y_deg(model5, 180.0);
-	model5 = rotate_x_deg(model5, rotate_wheel_deg);
-	model5 = translate(model5, vec3(-0.7, 0.65, -1.2));
-
-	mat4 global5 = global1 * model5;
-
-	// update uniforms & draw
-	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global5.m);
-
-	glDrawArrays(GL_TRIANGLES, 0, point_count2);
-
-	glBindVertexArray(vao3);
-
-	// Road mesh
-	mat4 road_model = identity_mat4();
-	road_model = translate(road_model, vec3(0, 0, 0));
-	road_model = rotate_y_deg(road_model, 90.0f);
-	view = translate(view, vec3(view_x, view_y, view_z));
-	view = rotate_x_deg(view, rotate_camera_x);
-	view = rotate_y_deg(view, rotate_camera_y);
-
-	// update uniforms & draw
-	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, road_model.m);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB8, GL_UNSIGNED_BYTE, image);
+	SOIL_free_image_data(image);*/
+	//glUniform1i(glGetUniformLocation(shaderProgramID, "texCar"), 4);
 
 	glDrawArrays(GL_TRIANGLES, 0, point_count1);
+
+	//glBindVertexArray(vao2);		//NB: This will allow us to select the second object
+
+	//// Front left wheel
+	//mat4 model2 = identity_mat4();
+	//model2 = rotate_x_deg(model2, rotate_wheel_deg);
+	//model2 = translate(model2, vec3(0.9,0.65,1.4));
+
+	//mat4 global2 = global1 * model2;
+
+	//// update uniforms & draw
+	//glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global2.m);
+
+
+	//glDrawArrays(GL_TRIANGLES, 0, point_count2);
+
+	//// Front right wheel
+	//mat4 model3 = identity_mat4();
+	//model3 = rotate_y_deg(model3, 180.0);
+	//model3 = rotate_x_deg(model3, rotate_wheel_deg);
+	//model3 = translate(model3, vec3(-0.7, 0.65, 1.4));
+
+	//mat4 global3 = global1 * model3;
+
+	//// update uniforms & draw
+	//glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global3.m);
+
+
+	//glDrawArrays(GL_TRIANGLES, 0, point_count2);
+
+	//// Back left wheel
+	//mat4 model4 = identity_mat4();
+	//model4 = rotate_x_deg(model4, rotate_wheel_deg);
+	//model4 = translate(model4, vec3(0.9, 0.65, -1.2));
+
+	//mat4 global4 = global1 * model4;
+
+	//// update uniforms & draw
+	//glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global4.m);
+
+
+	//glDrawArrays(GL_TRIANGLES, 0, point_count2);
+
+	//// Back right wheel
+	//mat4 model5 = identity_mat4();
+	//model5 = rotate_y_deg(model5, 180.0);
+	//model5 = rotate_x_deg(model5, rotate_wheel_deg);
+	//model5 = translate(model5, vec3(-0.7, 0.65, -1.2));
+
+	//mat4 global5 = global1 * model5;
+
+	//// update uniforms & draw
+	//glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global5.m);
+
+	//glDrawArrays(GL_TRIANGLES, 0, point_count2);
+
+	//glBindVertexArray(vao3);
+
+	//// Road mesh
+	//mat4 road_model = identity_mat4();
+	//road_model = translate(road_model, vec3(0, 0, 0));
+	//road_model = rotate_y_deg(road_model, 90.0f);
+	//view = translate(view, vec3(view_x, view_y, view_z));
+	//view = rotate_x_deg(view, rotate_camera_x);
+	//view = rotate_y_deg(view, rotate_camera_y);
+
+	//// update uniforms & draw
+	//glUniformMatrix4fv(matrix_location, 1, GL_FALSE, road_model.m);
+
+	//glDrawArrays(GL_TRIANGLES, 0, point_count3);
 
 	glutSwapBuffers();
 }
