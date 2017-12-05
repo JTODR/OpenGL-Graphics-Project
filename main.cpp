@@ -27,7 +27,7 @@ MESH TO LOAD
 // put the mesh in your project directory, or provide a filepath for it here
 #define MESH_NAME1 "../camaro_shell.obj"
 #define MESH_NAME2 "../camaro_wheel3.obj"
-#define MESH_NAME3 "../road_mesh3.obj"
+#define MESH_NAME3 "../road_mesh6.obj"
 /*----------------------------------------------------------------------------
 ----------------------------------------------------------------------------*/
 
@@ -517,7 +517,7 @@ void updateScene() {
 	//model_rotate += 0.01f;
 	trans_car_z += 0.05f;
 	// rotate the model slowly around the y axis
-	rotate_wheel_deg += 0.5f;
+	rotate_wheel_deg += 10.0f;
 	// Draw the next frame
 	glutPostRedisplay();
 }
@@ -541,29 +541,29 @@ void keypress(unsigned char key, int x, int y) {
 		break;
 
 	case 'w':
-		view_x = view_x + 0.5f;
+		view_x = view_x + 1.0f;
 		cout << "view_x: " << view_x << endl;
 		break;
 	case 's':
-		view_x = view_x - 0.5f;
+		view_x = view_x - 1.0f;
 		cout << "view_x: " << view_x << endl;
 		break;
 
 	case 'x':
-		view_y = view_y - 0.5f;
+		view_y = view_y - 1.0f;
 		cout << "view_y: " << view_y << endl;
 		break;
 	case 'z':
-		view_y = view_y + 0.5f;
+		view_y = view_y + 1.0f;
 		cout << "view_y: " << view_y << endl;
 		break;
 
 	case 'a':
-		view_z = view_z - 0.5f;
+		view_z = view_z - 1.0f;
 		cout << "view_z: " << view_z << endl;
 		break;
 	case 'd':
-		view_z = view_z + 0.5f;
+		view_z = view_z + 1.0f;
 		cout << "view_z: " << view_z << endl;
 		break;
 
