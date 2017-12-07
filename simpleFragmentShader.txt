@@ -1,7 +1,10 @@
 #version 330
 
+in vec2 Texcoord;
 in vec3 position_eye, normal_eye;
 uniform mat4 view_matrix;
+
+uniform sampler2D basic_texture;
 
 // fixed point light properties
 vec3 light_position_world = vec3 (0.0, 20.0, 10.0);
@@ -18,6 +21,9 @@ out vec4 fragment_colour; // final colour of surface
 
 in vec3 LightIntensity;
 void main(){
+
+	
+	//vec3 color = texel.rgb;
 	// ambient intensity
 	vec3 Ia = La * Ka;
 
@@ -39,5 +45,6 @@ void main(){
 	vec3 Is = Ls * Ks * specular_factor; // final specular intensity
 
 	// final colour
-	fragment_colour = vec4 (Is + Id + Ia, 1.0);
+	vec4 texel = texture(basic_texture, Texcoord);
+	fragment_colour = vec4(Is+Id+Ia, 1.0)* texel;
 }
