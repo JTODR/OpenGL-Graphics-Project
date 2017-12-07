@@ -84,8 +84,6 @@ GLfloat trans_liz_z = 20.0;
 GLfloat rotate_liz_x = 0;
 GLfloat rotate_liz_z = 0;
 
-
-
 GLfloat rotate_wheel_deg = 0;
 
 
@@ -264,22 +262,13 @@ GLuint CompileShaders()
 // VBO Functions - click on + to expand
 #pragma region VBO_FUNCTIONS
 
-void generateObjectBufferMesh() {
+int generateObjectBufferMesh(GLuint vao) {
 	/*----------------------------------------------------------------------------
 	LOAD MESH HERE AND COPY INTO BUFFERS
 	----------------------------------------------------------------------------*/
 
 	//Note: you may get an error "vector subscript out of range" if you are using this code for a mesh that doesnt have positions and normals
 	//Might be an idea to do a check for that before generating and binding the buffer.
-
-	////////////////////////// MESH 1 /////////////////////////////////////
-
-	load_mesh(MESH_NAME1);
-
-	point_count1 = g_point_count;
-	g_point_count = 0;
-
-	//cout << "POINT COUNT1 = " << point_count1 << endl;
 
 	unsigned int vp_vbo = 0;
 	loc1 = glGetAttribLocation(shaderProgramID, "vertex_position");
@@ -288,175 +277,40 @@ void generateObjectBufferMesh() {
 
 	glGenBuffers(1, &vp_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
-	glBufferData(GL_ARRAY_BUFFER, point_count1 * 3 * sizeof(float), &g_vp[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, g_point_count * 3 * sizeof(float), &g_vp[0], GL_STATIC_DRAW);
 
 	unsigned int vn_vbo = 0;
 	glGenBuffers(1, &vn_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vn_vbo);
-	glBufferData(GL_ARRAY_BUFFER, point_count1 * 3 * sizeof(float), &g_vn[0], GL_STATIC_DRAW);
-
-	//	This is for texture coordinates which you don't currently need, so I have commented it out
+	glBufferData(GL_ARRAY_BUFFER, g_point_count * 3 * sizeof(float), &g_vn[0], GL_STATIC_DRAW);
 
 	unsigned int vt_vbo = 0;
 	glGenBuffers(1, &vt_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vt_vbo);
-	glBufferData(GL_ARRAY_BUFFER, point_count1 * 2 * sizeof(float), &g_vt[0], GL_STATIC_DRAW);
-
-
+	glBufferData(GL_ARRAY_BUFFER, g_point_count * 2 * sizeof(float), &g_vt[0], GL_STATIC_DRAW);
 
 	g_vp.clear();
 	g_vn.clear();
 	g_vt.clear();
 
-	//GLuint vao1;	
-	glGenVertexArrays(1, &vao1);
-	glBindVertexArray(vao1);
+	glBindVertexArray(vao);
 
-
-
-
+	// vertices
 	glEnableVertexAttribArray(loc1);
 	glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
 	glVertexAttribPointer(loc1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+
+	// normals
 	glEnableVertexAttribArray(loc2);
 	glBindBuffer(GL_ARRAY_BUFFER, vn_vbo);
 	glVertexAttribPointer(loc2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
-	//	This is for texture coordinates which you don't currently need, so I have commented it out
+	// textures
 	glEnableVertexAttribArray(loc3);
 	glBindBuffer(GL_ARRAY_BUFFER, vt_vbo);
 	glVertexAttribPointer(loc3, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 
-	//////////////////////////// MESH 2 /////////////////////////////////////
-	//g_point_count = 0;
-	load_mesh(MESH_NAME2);
-	point_count2 = g_point_count;
-	g_point_count = 0;
-	//unsigned int vp_vbo = 0;
-	loc1 = glGetAttribLocation(shaderProgramID, "vertex_position");
-	loc2 = glGetAttribLocation(shaderProgramID, "vertex_normal");
-	loc3 = glGetAttribLocation(shaderProgramID, "vertex_texture");
-	
-	glGenBuffers(1, &vp_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
-	glBufferData(GL_ARRAY_BUFFER, point_count2 * 3 * sizeof(float), &g_vp[0], GL_STATIC_DRAW);
-
-	glGenBuffers(1, &vn_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vn_vbo);
-	glBufferData(GL_ARRAY_BUFFER, point_count2 * 3 * sizeof(float), &g_vn[0], GL_STATIC_DRAW);
-
-	//	This is for texture coordinates which you don't currently need, so I have commented it out
-	glGenBuffers (1, &vt_vbo);
-	glBindBuffer (GL_ARRAY_BUFFER, vt_vbo);
-	glBufferData (GL_ARRAY_BUFFER, point_count2 * 2 * sizeof (float), &g_vt[0], GL_STATIC_DRAW);
-
-	g_vp.clear();
-	g_vn.clear();
-	g_vt.clear();
-
-
-	glGenVertexArrays(1, &vao2);
-	glBindVertexArray(vao2);
-
-	glEnableVertexAttribArray(loc1);
-	glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
-	glVertexAttribPointer(loc1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	glEnableVertexAttribArray(loc2);
-	glBindBuffer(GL_ARRAY_BUFFER, vn_vbo);
-	glVertexAttribPointer(loc2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-	////	This is for texture coordinates which you don't currently need, so I have commented it out
-	glEnableVertexAttribArray (loc3);
-	glBindBuffer (GL_ARRAY_BUFFER, vt_vbo);
-	glVertexAttribPointer (loc3, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-
-
-	//////////////////////////// MESH 3 /////////////////////////////////////
-	//g_point_count = 0;
-	load_mesh(MESH_NAME3);
-	point_count3 = g_point_count;
-	g_point_count = 0;
-	//unsigned int vp_vbo = 0;
-	loc1 = glGetAttribLocation(shaderProgramID, "vertex_position");
-	loc2 = glGetAttribLocation(shaderProgramID, "vertex_normal");
-	loc3 = glGetAttribLocation(shaderProgramID, "vertex_texture");
-
-	glGenBuffers(1, &vp_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
-	glBufferData(GL_ARRAY_BUFFER, point_count3 * 3 * sizeof(float), &g_vp[0], GL_STATIC_DRAW);
-
-	glGenBuffers(1, &vn_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vn_vbo);
-	glBufferData(GL_ARRAY_BUFFER, point_count3 * 3 * sizeof(float), &g_vn[0], GL_STATIC_DRAW);
-
-	//	This is for texture coordinates which you don't currently need, so I have commented it out
-	glGenBuffers(1, &vt_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vt_vbo);
-	glBufferData(GL_ARRAY_BUFFER, point_count3 * 2 * sizeof(float), &g_vt[0], GL_STATIC_DRAW);
-
-	g_vp.clear();
-	g_vn.clear();
-	g_vt.clear();
-
-
-	glGenVertexArrays(1, &vao3);
-	glBindVertexArray(vao3);
-
-	glEnableVertexAttribArray(loc1);
-	glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
-	glVertexAttribPointer(loc1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	glEnableVertexAttribArray(loc2);
-	glBindBuffer(GL_ARRAY_BUFFER, vn_vbo);
-	glVertexAttribPointer(loc2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-	//	This is for texture coordinates which you don't currently need, so I have commented it out
-	glEnableVertexAttribArray (loc3);
-	glBindBuffer (GL_ARRAY_BUFFER, vt_vbo);
-	glVertexAttribPointer (loc3, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-
-	////////////////////////////// MESH 4 /////////////////////////////////////
-	//g_point_count = 0;
-	load_mesh(MESH_NAME4);
-	point_count4 = g_point_count;
-	g_point_count = 0;
-	//unsigned int vp_vbo = 0;
-	loc1 = glGetAttribLocation(shaderProgramID, "vertex_position");
-	loc2 = glGetAttribLocation(shaderProgramID, "vertex_normal");
-	loc3 = glGetAttribLocation(shaderProgramID, "vertex_texture");
-
-	glGenBuffers(1, &vp_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
-	glBufferData(GL_ARRAY_BUFFER, point_count4 * 3 * sizeof(float), &g_vp[0], GL_STATIC_DRAW);
-
-	glGenBuffers(1, &vn_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vn_vbo);
-	glBufferData(GL_ARRAY_BUFFER, point_count4 * 3 * sizeof(float), &g_vn[0], GL_STATIC_DRAW);
-
-	//	This is for texture coordinates which you don't currently need, so I have commented it out
-	glGenBuffers(1, &vt_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vt_vbo);
-	glBufferData(GL_ARRAY_BUFFER, point_count4 * 2 * sizeof(float), &g_vt[0], GL_STATIC_DRAW);
-
-	g_vp.clear();
-	g_vn.clear();
-	g_vt.clear();
-
-
-	glGenVertexArrays(1, &vao4);
-	glBindVertexArray(vao4);
-
-	glEnableVertexAttribArray(loc1);
-	glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
-	glVertexAttribPointer(loc1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	glEnableVertexAttribArray(loc2);
-	glBindBuffer(GL_ARRAY_BUFFER, vn_vbo);
-	glVertexAttribPointer(loc2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-	//This is for texture coordinates which you don't currently need, so I have commented it out
-	glEnableVertexAttribArray (loc3);
-	glBindBuffer (GL_ARRAY_BUFFER, vt_vbo);
-	glVertexAttribPointer (loc3, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-
+	return g_point_count;
 }
 
 
@@ -473,9 +327,7 @@ void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(shaderProgramID);
 
-
-
-	//glBindTexture(GL_TEXTURE_2D, texture0);
+	
 
 	//Declare your uniform variables that will be used in your shader
 	int matrix_location = glGetUniformLocation(shaderProgramID, "model_matrix");
@@ -503,7 +355,7 @@ void display() {
 	//glUniform1i(glGetUniformLocation(shaderProgramID, "tex"), 4);
 
 	glBindVertexArray(vao1);		//NB: This will allow us to select the first object
-									//glBindTexture(GL_TEXTURE_2D, texture0);
+	//glBindTexture(GL_TEXTURE_2D, texture0);							
 	glDrawArrays(GL_TRIANGLES, 0, point_count1);
 
 	glBindVertexArray(vao2);		//NB: This will allow us to select the second object
@@ -567,10 +419,7 @@ void display() {
 	mat4 road_model = identity_mat4();
 	road_model = translate(road_model, vec3(0, 0, 0));
 	road_model = rotate_y_deg(road_model, 90.0f);
-	/*view = translate(view, vec3(view_x, view_y, view_z));
-	view = rotate_x_deg(view, rotate_camera_x);
-	view = rotate_y_deg(view, rotate_camera_y);
-*/
+
 	// update uniforms & draw
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, road_model.m);
 
@@ -629,27 +478,18 @@ void updateScene() {
 	glutPostRedisplay();
 }
 
-
-void init()
-{
-	// Set up the shaders
-	GLuint shaderProgramID = CompileShaders();
-	GLuint texture0;
-
-	// load mesh into a vertex buffer array
-	generateObjectBufferMesh();
-
+void loadTextures(const char* filepath) {
 	int x, y, n;
 	int force_channels = 4;
-	unsigned char *image_data = stbi_load("C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\red.jpg", &x, &y, &n, force_channels);
+	unsigned char *image_data = stbi_load(filepath, &x, &y, &n, force_channels);
 	if (!image_data) {
-		fprintf(stderr, "ERROR: could not load %s\n", "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\red.jpg");
+		fprintf(stderr, "ERROR: could not load %s\n", filepath);
 
 	}
 	// NPOT check
 	if ((x & (x - 1)) != 0 || (y & (y - 1)) != 0) {
 		fprintf(stderr, "WARNING: texture %s is not power-of-2 dimensions\n",
-			"C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\red.jpg");
+			filepath);
 	}
 	int width_in_bytes = x * 4;
 	unsigned char *top = NULL;
@@ -683,6 +523,31 @@ void init()
 	// set the maximum!
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, max_aniso);
 	//return true;
+}
+
+void init()
+{
+	// Set up the shaders
+	GLuint shaderProgramID = CompileShaders();
+	//GLuint texture0;
+
+	load_mesh(MESH_NAME1);
+	glGenVertexArrays(1, &vao1);
+	point_count1 = generateObjectBufferMesh(vao1);
+
+	load_mesh(MESH_NAME2);
+	glGenVertexArrays(1, &vao2);
+	point_count2 = generateObjectBufferMesh(vao2);
+
+	load_mesh(MESH_NAME3);
+	glGenVertexArrays(1, &vao3);
+	point_count3 = generateObjectBufferMesh(vao3);
+
+	load_mesh(MESH_NAME4);
+	glGenVertexArrays(1, &vao4);
+	point_count4 = generateObjectBufferMesh(vao4);
+
+	loadTextures("C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\red.jpg");
 
 }
 
@@ -722,9 +587,6 @@ void keypress(unsigned char key, int x, int y) {
 		break;
 
 	}
-
-
-
 }
 
 void specialKeypress(int key, int x, int y) {
@@ -754,11 +616,7 @@ void specialKeypress(int key, int x, int y) {
 		//cout << "rotate_camera_z: " << rotate_camera_z << endl;
 		break;
 	}
-
-
-
 }
-
 
 
 int main(int argc, char** argv) {
