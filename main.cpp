@@ -32,7 +32,7 @@ MESH TO LOAD
 #define MESH_NAME1 "../camaro_shell.obj"
 #define MESH_NAME2 "../camaro_wheel3.obj"
 #define MESH_NAME3 "../road_mesh7.obj"
-#define MESH_NAME4 "../lizard5.obj"
+#define MESH_NAME4 "../lizard6.obj"
 /*----------------------------------------------------------------------------
 ----------------------------------------------------------------------------*/
 
@@ -66,7 +66,7 @@ GLuint vao4;
 
 
 GLfloat view_x = -8.0f;
-GLfloat view_y = 20.0f;
+GLfloat view_y = -5.0f;
 GLfloat view_z = -6.0f;
 
 GLfloat rotate_camera_x = 0.0f;
@@ -76,15 +76,14 @@ GLfloat model_rotate = 0.0f;//90.0f;
 
 GLfloat trans_car_x = 3;
 GLfloat trans_car_y = 0.4;
-GLfloat trans_car_z = -30;
+GLfloat trans_car_z = -40;
 //
-//GLfloat trans_liz_x = 20.0;
-//GLfloat trans_liz_y = 0.7;
-//GLfloat trans_liz_z = -20.0;
+GLfloat trans_liz_x = 20.0;
+GLfloat trans_liz_y = 0.8;
+GLfloat trans_liz_z = 20.0;
 GLfloat rotate_liz_x = 0;
-GLfloat trans_liz_x = 0;
-GLfloat trans_liz_y = 5;
-GLfloat trans_liz_z = 0;
+GLfloat rotate_liz_z = 0;
+
 
 
 GLfloat rotate_wheel_deg = 0;
@@ -489,7 +488,7 @@ void display() {
 	mat4 view = identity_mat4();
 	mat4 persp_proj = perspective(45.0, (float)width / (float)height, 0.1, 100.0);
 	mat4 model1 = identity_mat4();
-	model1 = translate(model1, vec3(0, 0.4, trans_car_z));
+	model1 = translate(model1, vec3(trans_car_x, trans_car_y, trans_car_z));
 	view = translate(view, vec3(view_x, view_y, view_z));
 	view = rotate_x_deg(view, rotate_camera_x);
 	view = rotate_y_deg(view, rotate_camera_y);
@@ -568,10 +567,10 @@ void display() {
 	mat4 road_model = identity_mat4();
 	road_model = translate(road_model, vec3(0, 0, 0));
 	road_model = rotate_y_deg(road_model, 90.0f);
-	view = translate(view, vec3(view_x, view_y, view_z));
+	/*view = translate(view, vec3(view_x, view_y, view_z));
 	view = rotate_x_deg(view, rotate_camera_x);
 	view = rotate_y_deg(view, rotate_camera_y);
-
+*/
 	// update uniforms & draw
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, road_model.m);
 
@@ -580,12 +579,9 @@ void display() {
 	glBindVertexArray(vao4);
 	// Lizard mesh
 	mat4 lizard_model = identity_mat4();
+	lizard_model = rotate_z_deg(lizard_model, rotate_liz_z);
+	lizard_model = rotate_y_deg(lizard_model, 270);
 	lizard_model = translate(lizard_model, vec3(trans_liz_x, trans_liz_y, trans_liz_z));
-	lizard_model = rotate_y_deg(lizard_model, 270.0f);
-	lizard_model = rotate_x_deg(lizard_model, rotate_liz_x);
-	/*view = translate(view, vec3(view_x, view_y, view_z));
-	view = rotate_x_deg(view, rotate_camera_x);
-	view = rotate_y_deg(view, rotate_camera_y);*/
 
 	// update uniforms & draw
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, lizard_model.m);
@@ -610,23 +606,25 @@ void updateScene() {
 
 	// speed of car controlled here
 	//float speed_of_car = 0.05;
-	float speed_of_car = 0.03;
-	trans_car_z += speed_of_car;
-	rotate_wheel_deg += (speed_of_car * 200);
+	float speed_of_car = 0.05;
+	if (trans_car_z < 15) {
+		trans_car_z += speed_of_car;
+		rotate_wheel_deg += (speed_of_car * 200);
+	}
 
-	/*if (rotate_count % 2 == 0) {
-		rotate_liz_x = 5.0f;
+	if (rotate_count % 4 == 0) {
+		rotate_liz_z = 5.0f;
 	}
 	else {
-		rotate_liz_x = -5.0f;
-	}*/
-	rotate_liz_x += 5.0f;
+		rotate_liz_z = -5.0f;
+	}
+	
 	rotate_count++;
 	
 
-	/*if (trans_car_z > 2) {
-		trans_liz_z += 0.03f;
-	}*/
+	if (trans_car_z > -10 && trans_liz_x > 3) {
+		trans_liz_x -= 0.03f;
+	}
 	// Draw the next frame
 	glutPostRedisplay();
 }
