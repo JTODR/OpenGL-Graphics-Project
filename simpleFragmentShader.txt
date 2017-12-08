@@ -4,7 +4,10 @@ in vec2 Texcoord;
 in vec3 position_eye, normal_eye;
 uniform mat4 view_matrix;
 
-uniform sampler2D basic_texture;
+uniform sampler2D redTexture;
+uniform sampler2D blackTexture;
+
+uniform int texture_num;
 
 // fixed point light properties
 vec3 light_position_world = vec3 (0.0, 20.0, 10.0);
@@ -45,6 +48,12 @@ void main(){
 	vec3 Is = Ls * Ks * specular_factor; // final specular intensity
 
 	// final colour
-	vec4 texel = texture(basic_texture, Texcoord);
-	fragment_colour = vec4(Is+Id+Ia, 1.0)* texel;
+	vec4 texel = texture(redTexture, Texcoord);
+	if(texture_num == 0){
+		texel = texture(redTexture, Texcoord);
+	}
+	if(texture_num == 1){
+		texel = texture(blackTexture, Texcoord);
+	}
+	fragment_colour = vec4(Is+Id+Ia, 1.0)* texel; //* texel2;
 }

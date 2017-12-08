@@ -93,6 +93,9 @@ GLfloat yaw;
 
 GLuint texture;
 GLuint texture0;
+GLuint texture1;
+GLuint texture2;
+GLuint texture3;
 
 #pragma region MESH LOADING
 /*----------------------------------------------------------------------------
@@ -333,6 +336,7 @@ void display() {
 	int matrix_location = glGetUniformLocation(shaderProgramID, "model_matrix");
 	int view_mat_location = glGetUniformLocation(shaderProgramID, "view_matrix");
 	int proj_mat_location = glGetUniformLocation(shaderProgramID, "proj_matrix");
+	int texture_num_loc = glGetUniformLocation(shaderProgramID, "texture_num");
 
 
 
@@ -352,13 +356,14 @@ void display() {
 	glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, persp_proj.m);
 	glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, view.m);
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global1.m);
+	glUniform1i(texture_num_loc, 0);
 	//glUniform1i(glGetUniformLocation(shaderProgramID, "tex"), 4);
 
 	glBindVertexArray(vao1);		//NB: This will allow us to select the first object
-	//glBindTexture(GL_TEXTURE_2D, texture0);							
+	glBindTexture(GL_TEXTURE_2D, texture0);							
 	glDrawArrays(GL_TRIANGLES, 0, point_count1);
 
-	glBindVertexArray(vao2);		//NB: This will allow us to select the second object
+	
 
 	// Front left wheel
 	mat4 model2 = identity_mat4();
@@ -369,8 +374,9 @@ void display() {
 
 	// update uniforms & draw
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global2.m);
-
-
+	glUniform1i(texture_num_loc, 1);
+	glBindVertexArray(vao2);
+	glBindTexture(GL_TEXTURE_2D, texture1);
 	glDrawArrays(GL_TRIANGLES, 0, point_count2);
 
 	// Front right wheel
@@ -478,7 +484,7 @@ void updateScene() {
 	glutPostRedisplay();
 }
 
-void loadTextures(const char* filepath) {
+void loadTextures(GLuint texture, const char* filepath, int active_arg, const GLchar* texString, int texNum) {
 	int x, y, n;
 	int force_channels = 4;
 	unsigned char *image_data = stbi_load(filepath, &x, &y, &n, force_channels);
@@ -508,11 +514,12 @@ void loadTextures(const char* filepath) {
 			bottom++;
 		}
 	}
-	glGenTextures(1, &texture0);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture0);
+	
+	glActiveTexture(active_arg);
+	glBindTexture(GL_TEXTURE_2D, texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_RGBA, GL_UNSIGNED_BYTE,
 		image_data);
+	glUniform1i(glGetUniformLocation(shaderProgramID, texString), texNum);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -547,7 +554,11 @@ void init()
 	glGenVertexArrays(1, &vao4);
 	point_count4 = generateObjectBufferMesh(vao4);
 
-	loadTextures("C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\red.jpg");
+	glGenTextures(1, &texture0);
+	loadTextures(texture0, "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\red.jpg", GL_TEXTURE0, "redTexture", 0);
+
+	glGenTextures(1, &texture1);
+	loadTextures(texture1, "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\seaguls1.jpg", GL_TEXTURE1, "blackTexture", 1);
 
 }
 
@@ -641,7 +652,7 @@ int main(int argc, char** argv) {
 		fprintf(stderr, "Error: '%s'\n", glewGetErrorString(res));
 		return 1;
 	}
-	//cout << "HELLO THERE" << endl;
+
 	// Set up your objects and shaders
 	init();
 	// Begin infinite event loop
