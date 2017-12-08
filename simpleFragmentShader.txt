@@ -10,11 +10,12 @@ uniform sampler2D greyTexture;
 uniform sampler2D cactusTexture;
 uniform sampler2D sandTexture;
 uniform sampler2D roadTexture;
+uniform sampler2D skyTexture;
 
 uniform int texture_num;
 
 // fixed point light properties
-vec3 light_position_world = vec3 (0.0, 7.0, 10.0);
+vec3 light_position_world = vec3 (0.0, 7.0, 0.0);
 vec3 Ls = vec3 (1.0, 1.0, 1.0); // white specular colour
 vec3 Ld = vec3 (0.7, 0.7, 0.7); // dull white diffuse light colour
 vec3 La = vec3 (0.2, 0.2, 0.2); // grey ambient colour
@@ -70,6 +71,9 @@ void main(){
 	}
 	else if(texture_num == 5){
 		texel = texture(roadTexture, Texcoord);
+	}
+	else if(texture_num == 6){
+		texel = texture(skyTexture, Texcoord);
 	}
 	fragment_colour = vec4(Is+Id+Ia, 1.0)* texel; 
 }

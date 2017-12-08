@@ -32,12 +32,13 @@ MESH TO LOAD
 #define MESH_NAME1 "../camaro_shell3.obj"
 #define MESH_NAME2 "../camaro_windows_grill.obj"
 #define MESH_NAME3 "../cactuses2.obj"
-#define MESH_NAME4 "../sand2.obj"
+#define MESH_NAME4 "../sand3.obj"
 #define MESH_NAME5 "../lizard6.obj"
 #define MESH_NAME6 "../camaro_rim_origin.obj"
 #define MESH_NAME7 "../camaro_tire_origin.obj"
 #define MESH_NAME8 "../camaro_lights_exhaust.obj"
 #define MESH_NAME9 "../road2.obj"
+#define MESH_NAME10 "../sky_box3.obj"
 /*----------------------------------------------------------------------------
 ----------------------------------------------------------------------------*/
 
@@ -52,6 +53,7 @@ int point_count6 = 0;
 int point_count7 = 0;
 int point_count8 = 0;
 int point_count9 = 0;
+int point_count10 = 0;
 
 
 
@@ -78,6 +80,7 @@ GLuint vao6;
 GLuint vao7;
 GLuint vao8;
 GLuint vao9;
+GLuint vao10;
 
 
 GLfloat view_x = -8.0f;
@@ -112,7 +115,7 @@ GLfloat yaw;
 //GLuint texture2;
 //GLuint texture3;
 
-GLuint textures[6];
+GLuint textures[7];
 
 #pragma region MESH LOADING
 /*----------------------------------------------------------------------------
@@ -542,6 +545,8 @@ void display() {
 	glBindTexture(GL_TEXTURE_2D, textures[3]);
 	glDrawArrays(GL_TRIANGLES, 0, point_count3);
 
+	////////////////////////////////////////// ROAD ////////////////////////////////////////
+
 	// Road mesh
 	mat4 road_model = identity_mat4();
 	road_model = translate(road_model, vec3(0, 0, 0));
@@ -555,6 +560,7 @@ void display() {
 	glBindTexture(GL_TEXTURE_2D, textures[5]);
 	glDrawArrays(GL_TRIANGLES, 0, point_count9);
 
+	////////////////////////////////////////// SAND ////////////////////////////////////////
 
 	// Sand mesh
 	mat4 sand_model = identity_mat4();
@@ -568,6 +574,22 @@ void display() {
 
 	glBindTexture(GL_TEXTURE_2D, textures[4]);
 	glDrawArrays(GL_TRIANGLES, 0, point_count4);
+
+	////////////////////////////////////////// SKY BOX ////////////////////////////////////////
+
+	// sky box mesh
+	mat4 sky_model = identity_mat4();
+	sky_model = translate(sky_model, vec3(0, 0, 0));
+	sky_model = rotate_y_deg(sky_model, 90.0f);
+
+	// update uniforms & draw
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, sky_model.m);
+	glBindVertexArray(vao10);
+	glUniform1i(texture_num_loc, 6);
+
+	glBindTexture(GL_TEXTURE_2D, textures[6]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count10);
+
 
 
 	//////////////////////////////////////////// LIZARD /////////////////////////////////////////
@@ -600,8 +622,8 @@ void updateScene() {
 	last_time = curr_time;
 
 	// speed of car controlled here
-	//float speed_of_car = 0.05;
-	float speed_of_car = 0.05;
+	float speed_of_car = 0.1;
+	//float speed_of_car = 0.01;
 	if (trans_car_z < 15) {
 		trans_car_z += speed_of_car;
 		rotate_wheel_deg += (speed_of_car * 200);
@@ -618,7 +640,7 @@ void updateScene() {
 	
 
 	if (trans_car_z > -10 && trans_liz_x > 3) {
-		trans_liz_x -= 0.03f;
+		trans_liz_x -= 0.05f;
 	}
 	// Draw the next frame
 	glutPostRedisplay();
@@ -714,8 +736,12 @@ void init()
 	glGenVertexArrays(1, &vao9);
 	point_count9 = generateObjectBufferMesh(vao9);
 
+	load_mesh(MESH_NAME10);
+	glGenVertexArrays(1, &vao10);
+	point_count10 = generateObjectBufferMesh(vao10);
 
-	glGenTextures(5, textures);
+
+	glGenTextures(7, textures);
 
 	loadTextures(textures[0], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\red.jpg", GL_TEXTURE0, "redTexture", 0);
 
@@ -728,6 +754,8 @@ void init()
 	loadTextures(textures[4], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\sand_texture.jpg", GL_TEXTURE4, "sandTexture", 4);
 
 	loadTextures(textures[5], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\road_texture.jpg", GL_TEXTURE5, "roadTexture", 5);
+
+	loadTextures(textures[6], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\sky_texture.jpg", GL_TEXTURE6, "skyTexture", 6);
 
 
 
