@@ -7,6 +7,9 @@ uniform mat4 view_matrix;
 uniform sampler2D redTexture;
 uniform sampler2D blackTexture;
 uniform sampler2D greyTexture;
+uniform sampler2D cactusTexture;
+uniform sampler2D sandTexture;
+uniform sampler2D roadTexture;
 
 uniform int texture_num;
 
@@ -49,7 +52,7 @@ void main(){
 	vec3 Is = Ls * Ks * specular_factor; // final specular intensity
 
 	// final colour
-	vec4 texel = texture(redTexture, Texcoord);
+	vec4 texel = texture(cactusTexture, Texcoord);
 	if(texture_num == 0){
 		texel = texture(redTexture, Texcoord);
 	}
@@ -59,5 +62,14 @@ void main(){
 	else if(texture_num == 2){
 		texel = texture(greyTexture, Texcoord);
 	}	
-	fragment_colour = vec4(Is+Id+Ia, 1.0)* texel; //* texel2;
+	else if(texture_num == 3){
+		texel = texture(cactusTexture, Texcoord);
+	}
+	else if(texture_num == 4){
+		texel = texture(sandTexture, Texcoord);
+	}
+	else if(texture_num == 5){
+		texel = texture(roadTexture, Texcoord);
+	}
+	fragment_colour = vec4(Is+Id+Ia, 1.0)* texel; 
 }

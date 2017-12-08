@@ -31,12 +31,13 @@ MESH TO LOAD
 // put the mesh in your project directory, or provide a filepath for it here
 #define MESH_NAME1 "../camaro_shell3.obj"
 #define MESH_NAME2 "../camaro_windows_grill.obj"
-#define MESH_NAME3 "../camaro_wheel3.obj"
-#define MESH_NAME4 "../road_mesh7.obj"
+#define MESH_NAME3 "../cactuses2.obj"
+#define MESH_NAME4 "../sand2.obj"
 #define MESH_NAME5 "../lizard6.obj"
 #define MESH_NAME6 "../camaro_rim_origin.obj"
 #define MESH_NAME7 "../camaro_tire_origin.obj"
 #define MESH_NAME8 "../camaro_lights_exhaust.obj"
+#define MESH_NAME9 "../road2.obj"
 /*----------------------------------------------------------------------------
 ----------------------------------------------------------------------------*/
 
@@ -50,6 +51,7 @@ int point_count5 = 0;
 int point_count6 = 0;
 int point_count7 = 0;
 int point_count8 = 0;
+int point_count9 = 0;
 
 
 
@@ -75,6 +77,7 @@ GLuint vao5;
 GLuint vao6;
 GLuint vao7;
 GLuint vao8;
+GLuint vao9;
 
 
 GLfloat view_x = -8.0f;
@@ -103,13 +106,13 @@ GLfloat offset = 1.0f;
 GLfloat pitch;
 GLfloat yaw;
 
-GLuint texture;
-GLuint texture0;
-GLuint texture1;
-GLuint texture2;
-GLuint texture3;
+//GLuint texture;
+//GLuint texture0;
+//GLuint texture1;
+//GLuint texture2;
+//GLuint texture3;
 
-GLuint textures[3];
+GLuint textures[6];
 
 #pragma region MESH LOADING
 /*----------------------------------------------------------------------------
@@ -525,6 +528,19 @@ void display() {
 	glBindTexture(GL_TEXTURE_2D, textures[1]);
 	glDrawArrays(GL_TRIANGLES, 0, point_count7);
 
+	////////////////////////////////////////// CACTUSES ////////////////////////////////////////
+
+	// Cactuses mesh
+	mat4 model_cactuses = identity_mat4();
+	model_cactuses = translate(model_cactuses, vec3(0, 0, 0));
+	model_cactuses = rotate_y_deg(model_cactuses, 90.0f);
+
+	// update uniforms & draw
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, model_cactuses.m);
+	glUniform1i(texture_num_loc, 3);
+	glBindVertexArray(vao3);
+	glBindTexture(GL_TEXTURE_2D, textures[3]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count3);
 
 	// Road mesh
 	mat4 road_model = identity_mat4();
@@ -533,12 +549,28 @@ void display() {
 
 	// update uniforms & draw
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, road_model.m);
-	glBindVertexArray(vao4);
-	glUniform1i(texture_num_loc, 2);
+	glBindVertexArray(vao9);
+	glUniform1i(texture_num_loc, 5);
 
-	glBindTexture(GL_TEXTURE_2D, textures[2]);
+	glBindTexture(GL_TEXTURE_2D, textures[5]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count9);
+
+
+	// Sand mesh
+	mat4 sand_model = identity_mat4();
+	sand_model = translate(sand_model, vec3(0, 0, 0));
+	sand_model = rotate_y_deg(sand_model, 90.0f);
+
+	// update uniforms & draw
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, sand_model.m);
+	glBindVertexArray(vao4);
+	glUniform1i(texture_num_loc, 4);
+
+	glBindTexture(GL_TEXTURE_2D, textures[4]);
 	glDrawArrays(GL_TRIANGLES, 0, point_count4);
 
+
+	//////////////////////////////////////////// LIZARD /////////////////////////////////////////
 	
 	// Lizard mesh
 	mat4 lizard_model = identity_mat4();
@@ -629,10 +661,10 @@ void loadTextures(GLuint texture, const char* filepath, int active_arg, const GL
 		image_data);
 	glUniform1i(glGetUniformLocation(shaderProgramID, texString), texNum);
 	glGenerateMipmap(GL_TEXTURE_2D);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_REPEAT);
 	GLfloat max_aniso = 0.0f;
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max_aniso);
 	// set the maximum!
@@ -678,17 +710,26 @@ void init()
 	glGenVertexArrays(1, &vao8);
 	point_count8 = generateObjectBufferMesh(vao8);
 
-	//GLuint textures[3] = { texture0, texture1, texture2 };
+	load_mesh(MESH_NAME9);
+	glGenVertexArrays(1, &vao9);
+	point_count9 = generateObjectBufferMesh(vao9);
 
-	glGenTextures(3, textures);
+
+	glGenTextures(5, textures);
 
 	loadTextures(textures[0], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\red.jpg", GL_TEXTURE0, "redTexture", 0);
 
-	//glGenTextures(1, &texture1);
 	loadTextures(textures[1], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\black1.jpg", GL_TEXTURE1, "blackTexture", 1);
 
-	//glGenTextures(1, &texture2);
 	loadTextures(textures[2], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\grey.jpg", GL_TEXTURE2, "greyTexture", 2);
+
+	loadTextures(textures[3], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\cactus_texture3.jpg", GL_TEXTURE3, "cactusTexture", 3);
+
+	loadTextures(textures[4], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\sand_texture.jpg", GL_TEXTURE4, "sandTexture", 4);
+
+	loadTextures(textures[5], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\road_texture.jpg", GL_TEXTURE5, "roadTexture", 5);
+
+
 
 }
 
