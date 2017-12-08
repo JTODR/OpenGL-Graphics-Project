@@ -34,6 +34,8 @@ MESH TO LOAD
 #define MESH_NAME3 "../camaro_wheel3.obj"
 #define MESH_NAME4 "../road_mesh7.obj"
 #define MESH_NAME5 "../lizard6.obj"
+#define MESH_NAME6 "../camaro_rim_origin.obj"
+#define MESH_NAME7 "../camaro_tire_origin.obj"
 /*----------------------------------------------------------------------------
 ----------------------------------------------------------------------------*/
 
@@ -44,6 +46,8 @@ int point_count2 = 0;
 int point_count3 = 0;
 int point_count4 = 0;
 int point_count5 = 0;
+int point_count6 = 0;
+int point_count7 = 0;
 
 
 
@@ -66,6 +70,8 @@ GLuint vao2;
 GLuint vao3;
 GLuint vao4;
 GLuint vao5;
+GLuint vao6;
+GLuint vao7;
 
 
 GLfloat view_x = -8.0f;
@@ -343,6 +349,9 @@ void display() {
 	int proj_mat_location = glGetUniformLocation(shaderProgramID, "proj_matrix");
 	int texture_num_loc = glGetUniformLocation(shaderProgramID, "texture_num");
 
+
+	///////////////////////////////////// CAR SHELL AND WINDOWS/ GRILL /////////////////////////////////////
+
 	// Root of the Hierarchy - Car shell
 	mat4 view = identity_mat4();
 	mat4 persp_proj = perspective(45.0, (float)width / (float)height, 0.1, 100.0);
@@ -353,13 +362,12 @@ void display() {
 	view = rotate_y_deg(view, rotate_camera_y);
 
 	mat4 global1 = model1;
-	// update uniforms & draw
+
 	glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, persp_proj.m);
 	glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, view.m);
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global1.m);
 	glUniform1i(texture_num_loc, 0);
-
-	glBindVertexArray(vao1);		//NB: This will allow us to select the first object
+	glBindVertexArray(vao1);		
 	glBindTexture(GL_TEXTURE_2D, textures[0]);							
 	glDrawArrays(GL_TRIANGLES, 0, point_count1);
 
@@ -369,69 +377,139 @@ void display() {
 
 	mat4 global1a = global1 * modelWindowsGrill;
 
-	// update uniforms & draw
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global1a.m);
 	glUniform1i(texture_num_loc, 1);
 	glBindVertexArray(vao2);
 	glBindTexture(GL_TEXTURE_2D, textures[1]);
 	glDrawArrays(GL_TRIANGLES, 0, point_count2);
 
-	// Front left wheel
-	mat4 model2 = identity_mat4();
-	model2 = rotate_x_deg(model2, rotate_wheel_deg);
-	model2 = translate(model2, vec3(0.9,0.65,1.4));
 
-	mat4 global2 = global1 * model2;
+	//////////////////////////////////// FRONT LEFT WHEEL /////////////////////////////////////
+
+	// front left rim
+	mat4 model_fl_rim = identity_mat4();
+	model_fl_rim = rotate_x_deg(model_fl_rim, rotate_wheel_deg);
+	model_fl_rim = translate(model_fl_rim, vec3(0.9, 0.65, 1.4));
+
+	mat4 global_fl_rim = global1 * model_fl_rim;
 
 	// update uniforms & draw
-	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global2.m);
-	
-	glBindVertexArray(vao3);
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global_fl_rim.m);
 	glUniform1i(texture_num_loc, 2);
+	glBindVertexArray(vao6);
 	glBindTexture(GL_TEXTURE_2D, textures[2]);
-	glDrawArrays(GL_TRIANGLES, 0, point_count3);
+	glDrawArrays(GL_TRIANGLES, 0, point_count6);
 
-	// Front right wheel
-	mat4 model3 = identity_mat4();
-	model3 = rotate_y_deg(model3, 180.0);
-	model3 = rotate_x_deg(model3, rotate_wheel_deg);
-	model3 = translate(model3, vec3(-0.7, 0.65, 1.4));
 
-	mat4 global3 = global1 * model3;
+	// front left tire
+	mat4 model_fl_tire = identity_mat4();
+	model_fl_tire = rotate_x_deg(model_fl_tire, rotate_wheel_deg);
+	model_fl_tire = translate(model_fl_tire, vec3(0.9, 0.65, 1.4));
 
-	// update uniforms & draw
-	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global3.m);
-
-	//glUniform1i(texture_num_loc, 2);
-	//glBindTexture(GL_TEXTURE_2D, texture2);
-	glDrawArrays(GL_TRIANGLES, 0, point_count3);
-
-	// Back left wheel
-	mat4 model4 = identity_mat4();
-	model4 = rotate_x_deg(model4, rotate_wheel_deg);
-	model4 = translate(model4, vec3(0.9, 0.65, -1.2));
-
-	mat4 global4 = global1 * model4;
+	mat4 global_fl_tire = global1 * model_fl_tire;
 
 	// update uniforms & draw
-	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global4.m);
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global_fl_tire.m);
+	glUniform1i(texture_num_loc, 1);
+	glBindVertexArray(vao7);
+	glBindTexture(GL_TEXTURE_2D, textures[1]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count7);
 
-	//glUniform1i(texture_num_loc, 2);
-	//glBindTexture(GL_TEXTURE_2D, texture2);
-	glDrawArrays(GL_TRIANGLES, 0, point_count3);
+	//////////////////////////////////// FRONT RIGHT WHEEL /////////////////////////////////////
 
-	// Back right wheel
-	mat4 model5 = identity_mat4();
-	model5 = rotate_y_deg(model5, 180.0);
-	model5 = rotate_x_deg(model5, rotate_wheel_deg);
-	model5 = translate(model5, vec3(-0.7, 0.65, -1.2));
+	// front right rim
+	mat4 model_fr_rim = identity_mat4();
+	model_fr_rim = rotate_y_deg(model_fr_rim, 180.0);
+	model_fr_rim = rotate_x_deg(model_fr_rim, rotate_wheel_deg);
+	model_fr_rim = translate(model_fr_rim, vec3(-0.7, 0.65, 1.4));
 
-	mat4 global5 = global1 * model5;
+	mat4 global_fr_rim = global1 * model_fr_rim;
 
 	// update uniforms & draw
-	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global5.m);
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global_fr_rim.m);
+	glUniform1i(texture_num_loc, 2);
+	glBindVertexArray(vao6);
+	glBindTexture(GL_TEXTURE_2D, textures[2]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count6);
 
-	glDrawArrays(GL_TRIANGLES, 0, point_count3);
+
+	// front right tire
+	mat4 model_fr_tire = identity_mat4();
+	model_fr_tire = rotate_x_deg(model_fr_tire, rotate_wheel_deg);
+	model_fr_tire = translate(model_fr_tire, vec3(-0.7, 0.65, 1.4));
+
+	mat4 global_fr_tire = global1 * model_fr_tire;
+
+	// update uniforms & draw
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global_fr_tire.m);
+	glUniform1i(texture_num_loc, 1);
+	glBindVertexArray(vao7);
+	glBindTexture(GL_TEXTURE_2D, textures[1]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count7);
+
+	//////////////////////////////////// BACK LEFT WHEEL /////////////////////////////////////
+
+	// back left rim
+	mat4 model_bl_rim = identity_mat4();
+	model_bl_rim = rotate_x_deg(model_bl_rim, rotate_wheel_deg);
+	model_bl_rim = translate(model_bl_rim, vec3(0.9, 0.65, -1.2));
+
+	mat4 global_bl_rim = global1 * model_bl_rim;
+
+	// update uniforms & draw
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global_bl_rim.m);
+	glUniform1i(texture_num_loc, 2);
+	glBindVertexArray(vao6);
+	glBindTexture(GL_TEXTURE_2D, textures[2]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count6);
+
+
+	// back left tire
+	mat4 model_bl_tire = identity_mat4();
+	model_bl_tire = rotate_x_deg(model_bl_tire, rotate_wheel_deg);
+	model_bl_tire = translate(model_bl_tire, vec3(0.9, 0.65, -1.2));
+
+	mat4 global_bl_tire = global1 * model_bl_tire;
+
+	// update uniforms & draw
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global_bl_tire.m);
+	glUniform1i(texture_num_loc, 1);
+	glBindVertexArray(vao7);
+	glBindTexture(GL_TEXTURE_2D, textures[1]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count7);
+
+	//////////////////////////////////// BACK RIGHT WHEEL /////////////////////////////////////
+
+	// back right rim
+	mat4 model_br_rim = identity_mat4();
+	model_br_rim = rotate_y_deg(model_br_rim, 180.0);
+	model_br_rim = rotate_x_deg(model_br_rim, rotate_wheel_deg);
+	model_br_rim = translate(model_br_rim, vec3(-0.7, 0.65, -1.2));
+
+	mat4 global_br_rim = global1 * model_br_rim;
+
+	// update uniforms & draw
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global_br_rim.m);
+	glUniform1i(texture_num_loc, 2);
+	glBindVertexArray(vao6);
+	glBindTexture(GL_TEXTURE_2D, textures[2]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count6);
+
+
+	// back right tire
+	mat4 model_br_tire = identity_mat4();
+	model_br_tire = rotate_x_deg(model_br_tire, rotate_wheel_deg);
+	model_br_tire = translate(model_br_tire, vec3(-0.7, 0.65, -1.2));
+
+	mat4 global_br_tire = global1 * model_br_tire;
+
+	// update uniforms & draw
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global_br_tire.m);
+	glUniform1i(texture_num_loc, 1);
+	glBindVertexArray(vao7);
+	glBindTexture(GL_TEXTURE_2D, textures[1]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count7);
+
 
 	// Road mesh
 	mat4 road_model = identity_mat4();
@@ -441,6 +519,9 @@ void display() {
 	// update uniforms & draw
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, road_model.m);
 	glBindVertexArray(vao4);
+	glUniform1i(texture_num_loc, 2);
+
+	glBindTexture(GL_TEXTURE_2D, textures[2]);
 	glDrawArrays(GL_TRIANGLES, 0, point_count4);
 
 	
@@ -570,6 +651,14 @@ void init()
 	glGenVertexArrays(1, &vao5);
 	point_count5 = generateObjectBufferMesh(vao5);
 
+	load_mesh(MESH_NAME6);
+	glGenVertexArrays(1, &vao6);
+	point_count6 = generateObjectBufferMesh(vao6);
+
+	load_mesh(MESH_NAME7);
+	glGenVertexArrays(1, &vao7);
+	point_count7 = generateObjectBufferMesh(vao7);
+
 	//GLuint textures[3] = { texture0, texture1, texture2 };
 
 	glGenTextures(3, textures);
@@ -577,10 +666,10 @@ void init()
 	loadTextures(textures[0], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\red.jpg", GL_TEXTURE0, "redTexture", 0);
 
 	//glGenTextures(1, &texture1);
-	loadTextures(textures[1], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\black.jpg", GL_TEXTURE1, "blackTexture", 1);
+	loadTextures(textures[1], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\black1.jpg", GL_TEXTURE1, "blackTexture", 1);
 
 	//glGenTextures(1, &texture2);
-	loadTextures(textures[2], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\seaguls1.jpg", GL_TEXTURE2, "seagulsTexture", 2);
+	loadTextures(textures[2], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\grey.jpg", GL_TEXTURE2, "greyTexture", 2);
 
 }
 

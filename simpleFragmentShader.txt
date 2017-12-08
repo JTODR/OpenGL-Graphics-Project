@@ -6,7 +6,7 @@ uniform mat4 view_matrix;
 
 uniform sampler2D redTexture;
 uniform sampler2D blackTexture;
-uniform sampler2D seagulsTexture;
+uniform sampler2D greyTexture;
 
 uniform int texture_num;
 
@@ -57,7 +57,7 @@ void main(){
 		texel = texture(blackTexture, Texcoord);
 	}
 	else if(texture_num == 2){
-		texel = texture(seagulsTexture, Texcoord);
+		texel = texture(greyTexture, Texcoord);
 	}	
 	fragment_colour = vec4(Is+Id+Ia, 1.0)* texel; //* texel2;
 }
