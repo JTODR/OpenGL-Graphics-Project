@@ -29,13 +29,14 @@ MESH TO LOAD
 ----------------------------------------------------------------------------*/
 // this mesh is a dae file format but you should be able to use any other format too, obj is typically what is used
 // put the mesh in your project directory, or provide a filepath for it here
-#define MESH_NAME1 "../camaro_shell2.obj"
+#define MESH_NAME1 "../camaro_shell3.obj"
 #define MESH_NAME2 "../camaro_windows_grill.obj"
 #define MESH_NAME3 "../camaro_wheel3.obj"
 #define MESH_NAME4 "../road_mesh7.obj"
 #define MESH_NAME5 "../lizard6.obj"
 #define MESH_NAME6 "../camaro_rim_origin.obj"
 #define MESH_NAME7 "../camaro_tire_origin.obj"
+#define MESH_NAME8 "../camaro_lights_exhaust.obj"
 /*----------------------------------------------------------------------------
 ----------------------------------------------------------------------------*/
 
@@ -48,6 +49,7 @@ int point_count4 = 0;
 int point_count5 = 0;
 int point_count6 = 0;
 int point_count7 = 0;
+int point_count8 = 0;
 
 
 
@@ -72,6 +74,7 @@ GLuint vao4;
 GLuint vao5;
 GLuint vao6;
 GLuint vao7;
+GLuint vao8;
 
 
 GLfloat view_x = -8.0f;
@@ -350,7 +353,7 @@ void display() {
 	int texture_num_loc = glGetUniformLocation(shaderProgramID, "texture_num");
 
 
-	///////////////////////////////////// CAR SHELL AND WINDOWS/ GRILL /////////////////////////////////////
+	///////////////////////////////////// CAR SHELL, WINDOWS/ GRILL AND LIGHTS/ EXHAUST /////////////////////////////////////
 
 	// Root of the Hierarchy - Car shell
 	mat4 view = identity_mat4();
@@ -382,6 +385,18 @@ void display() {
 	glBindVertexArray(vao2);
 	glBindTexture(GL_TEXTURE_2D, textures[1]);
 	glDrawArrays(GL_TRIANGLES, 0, point_count2);
+
+	// lights and exhaust of car
+	mat4 modelLightsExhaust = identity_mat4();
+	modelLightsExhaust = translate(modelLightsExhaust, vec3(0, 0, 0));
+
+	mat4 global1b = global1 * modelLightsExhaust;
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global1b.m);
+	glUniform1i(texture_num_loc, 2);
+	glBindVertexArray(vao8);
+	glBindTexture(GL_TEXTURE_2D, textures[2]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count8);
 
 
 	//////////////////////////////////// FRONT LEFT WHEEL /////////////////////////////////////
@@ -658,6 +673,10 @@ void init()
 	load_mesh(MESH_NAME7);
 	glGenVertexArrays(1, &vao7);
 	point_count7 = generateObjectBufferMesh(vao7);
+
+	load_mesh(MESH_NAME8);
+	glGenVertexArrays(1, &vao8);
+	point_count8 = generateObjectBufferMesh(vao8);
 
 	//GLuint textures[3] = { texture0, texture1, texture2 };
 
