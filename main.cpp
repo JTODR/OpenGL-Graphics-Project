@@ -95,6 +95,7 @@ GLfloat model_rotate = 0.0f;//90.0f;
 GLfloat trans_car_x = 3;
 GLfloat trans_car_y = 0.4;
 GLfloat trans_car_z = -40;
+GLfloat rotate_y_car = 0;
 //
 GLfloat trans_liz_x = 20.0;
 GLfloat trans_liz_y = 0.8;
@@ -365,7 +366,9 @@ void display() {
 	mat4 view = identity_mat4();
 	mat4 persp_proj = perspective(45.0, (float)width / (float)height, 0.1, 100.0);
 	mat4 model1 = identity_mat4();
+	model1 = rotate_y_deg(model1, rotate_y_car);
 	model1 = translate(model1, vec3(trans_car_x, trans_car_y, trans_car_z));
+	
 	view = translate(view, vec3(view_x, view_y, view_z));
 	view = rotate_x_deg(view, rotate_camera_x);
 	view = rotate_y_deg(view, rotate_camera_y);
@@ -602,7 +605,9 @@ void display() {
 
 	// update uniforms & draw
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, lizard_model.m);
+	glUniform1i(texture_num_loc, 3);
 	glBindVertexArray(vao5);
+	glBindTexture(GL_TEXTURE_2D, textures[3]);
 	glDrawArrays(GL_TRIANGLES, 0, point_count5);
 
 	glutSwapBuffers();
@@ -628,8 +633,17 @@ void updateScene() {
 		trans_car_z += speed_of_car;
 		rotate_wheel_deg += (speed_of_car * 200);
 	}
+	else if (trans_car_x > -3) {
+		trans_car_x -= 0.5;
+		trans_car_z += 0.5;
+		rotate_y_car += 15.0f;
+	}
+	else {
+		trans_car_z += speed_of_car;
+		rotate_y_car = 0.0f;
+	}
 
-	if (rotate_count % 4 == 0) {
+	if (rotate_count % 4 == 0 && trans_liz_z < 3) {
 		rotate_liz_z = 5.0f;
 	}
 	else {
