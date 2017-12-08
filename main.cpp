@@ -29,10 +29,11 @@ MESH TO LOAD
 ----------------------------------------------------------------------------*/
 // this mesh is a dae file format but you should be able to use any other format too, obj is typically what is used
 // put the mesh in your project directory, or provide a filepath for it here
-#define MESH_NAME1 "../camaro_shell.obj"
-#define MESH_NAME2 "../camaro_wheel3.obj"
-#define MESH_NAME3 "../road_mesh7.obj"
-#define MESH_NAME4 "../lizard6.obj"
+#define MESH_NAME1 "../camaro_shell2.obj"
+#define MESH_NAME2 "../camaro_windows_grill.obj"
+#define MESH_NAME3 "../camaro_wheel3.obj"
+#define MESH_NAME4 "../road_mesh7.obj"
+#define MESH_NAME5 "../lizard6.obj"
 /*----------------------------------------------------------------------------
 ----------------------------------------------------------------------------*/
 
@@ -42,6 +43,7 @@ int point_count1 = 0;
 int point_count2 = 0;
 int point_count3 = 0;
 int point_count4 = 0;
+int point_count5 = 0;
 
 
 
@@ -63,6 +65,7 @@ GLuint vao1;
 GLuint vao2;
 GLuint vao3;
 GLuint vao4;
+GLuint vao5;
 
 
 GLfloat view_x = -8.0f;
@@ -96,6 +99,8 @@ GLuint texture0;
 GLuint texture1;
 GLuint texture2;
 GLuint texture3;
+
+GLuint textures[3];
 
 #pragma region MESH LOADING
 /*----------------------------------------------------------------------------
@@ -338,8 +343,6 @@ void display() {
 	int proj_mat_location = glGetUniformLocation(shaderProgramID, "proj_matrix");
 	int texture_num_loc = glGetUniformLocation(shaderProgramID, "texture_num");
 
-
-
 	// Root of the Hierarchy - Car shell
 	mat4 view = identity_mat4();
 	mat4 persp_proj = perspective(45.0, (float)width / (float)height, 0.1, 100.0);
@@ -350,20 +353,28 @@ void display() {
 	view = rotate_y_deg(view, rotate_camera_y);
 
 	mat4 global1 = model1;
-
-
 	// update uniforms & draw
 	glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, persp_proj.m);
 	glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, view.m);
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global1.m);
 	glUniform1i(texture_num_loc, 0);
-	//glUniform1i(glGetUniformLocation(shaderProgramID, "tex"), 4);
 
 	glBindVertexArray(vao1);		//NB: This will allow us to select the first object
-	glBindTexture(GL_TEXTURE_2D, texture0);							
+	glBindTexture(GL_TEXTURE_2D, textures[0]);							
 	glDrawArrays(GL_TRIANGLES, 0, point_count1);
 
-	
+	// windows and grill
+	mat4 modelWindowsGrill = identity_mat4();
+	modelWindowsGrill = translate(modelWindowsGrill, vec3(0, -2, 0));
+
+	mat4 global1a = global1 * modelWindowsGrill;
+
+	// update uniforms & draw
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global1a.m);
+	glUniform1i(texture_num_loc, 1);
+	glBindVertexArray(vao2);
+	glBindTexture(GL_TEXTURE_2D, textures[1]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count2);
 
 	// Front left wheel
 	mat4 model2 = identity_mat4();
@@ -374,10 +385,11 @@ void display() {
 
 	// update uniforms & draw
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global2.m);
-	glUniform1i(texture_num_loc, 1);
-	glBindVertexArray(vao2);
-	glBindTexture(GL_TEXTURE_2D, texture1);
-	glDrawArrays(GL_TRIANGLES, 0, point_count2);
+	
+	glBindVertexArray(vao3);
+	glUniform1i(texture_num_loc, 2);
+	glBindTexture(GL_TEXTURE_2D, textures[2]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count3);
 
 	// Front right wheel
 	mat4 model3 = identity_mat4();
@@ -390,8 +402,9 @@ void display() {
 	// update uniforms & draw
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global3.m);
 
-
-	glDrawArrays(GL_TRIANGLES, 0, point_count2);
+	//glUniform1i(texture_num_loc, 2);
+	//glBindTexture(GL_TEXTURE_2D, texture2);
+	glDrawArrays(GL_TRIANGLES, 0, point_count3);
 
 	// Back left wheel
 	mat4 model4 = identity_mat4();
@@ -403,8 +416,9 @@ void display() {
 	// update uniforms & draw
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global4.m);
 
-
-	glDrawArrays(GL_TRIANGLES, 0, point_count2);
+	//glUniform1i(texture_num_loc, 2);
+	//glBindTexture(GL_TEXTURE_2D, texture2);
+	glDrawArrays(GL_TRIANGLES, 0, point_count3);
 
 	// Back right wheel
 	mat4 model5 = identity_mat4();
@@ -417,9 +431,7 @@ void display() {
 	// update uniforms & draw
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global5.m);
 
-	glDrawArrays(GL_TRIANGLES, 0, point_count2);
-
-	glBindVertexArray(vao3);
+	glDrawArrays(GL_TRIANGLES, 0, point_count3);
 
 	// Road mesh
 	mat4 road_model = identity_mat4();
@@ -428,10 +440,10 @@ void display() {
 
 	// update uniforms & draw
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, road_model.m);
-
-	glDrawArrays(GL_TRIANGLES, 0, point_count3);
-
 	glBindVertexArray(vao4);
+	glDrawArrays(GL_TRIANGLES, 0, point_count4);
+
+	
 	// Lizard mesh
 	mat4 lizard_model = identity_mat4();
 	lizard_model = rotate_z_deg(lizard_model, rotate_liz_z);
@@ -440,8 +452,8 @@ void display() {
 
 	// update uniforms & draw
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, lizard_model.m);
-
-	glDrawArrays(GL_TRIANGLES, 0, point_count4);
+	glBindVertexArray(vao5);
+	glDrawArrays(GL_TRIANGLES, 0, point_count5);
 
 	glutSwapBuffers();
 }
@@ -554,11 +566,21 @@ void init()
 	glGenVertexArrays(1, &vao4);
 	point_count4 = generateObjectBufferMesh(vao4);
 
-	glGenTextures(1, &texture0);
-	loadTextures(texture0, "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\red.jpg", GL_TEXTURE0, "redTexture", 0);
+	load_mesh(MESH_NAME5);
+	glGenVertexArrays(1, &vao5);
+	point_count5 = generateObjectBufferMesh(vao5);
 
-	glGenTextures(1, &texture1);
-	loadTextures(texture1, "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\seaguls1.jpg", GL_TEXTURE1, "blackTexture", 1);
+	//GLuint textures[3] = { texture0, texture1, texture2 };
+
+	glGenTextures(3, textures);
+
+	loadTextures(textures[0], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\red.jpg", GL_TEXTURE0, "redTexture", 0);
+
+	//glGenTextures(1, &texture1);
+	loadTextures(textures[1], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\black.jpg", GL_TEXTURE1, "blackTexture", 1);
+
+	//glGenTextures(1, &texture2);
+	loadTextures(textures[2], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\seaguls1.jpg", GL_TEXTURE2, "seagulsTexture", 2);
 
 }
 
