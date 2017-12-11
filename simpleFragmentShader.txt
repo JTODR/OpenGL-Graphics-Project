@@ -52,28 +52,34 @@ void main(){
 	float specular_factor = pow (dot_prod_specular, specular_exponent);
 	vec3 Is = Ls * Ks * specular_factor; // final specular intensity
 
-	// final colour
-	vec4 texel = texture(cactusTexture, Texcoord);
-	if(texture_num == 0){
-		texel = texture(redTexture, Texcoord);
-	}
-	else if(texture_num == 1){
-		texel = texture(blackTexture, Texcoord);
-	}
-	else if(texture_num == 2){
-		texel = texture(greyTexture, Texcoord);
+	// output colour is colour of text
+	if(texture_num == -1){
+		fragment_colour = vec4(1.0, 0, 0, 1.0);
 	}	
-	else if(texture_num == 3){
-		texel = texture(cactusTexture, Texcoord);
-	}
-	else if(texture_num == 4){
-		texel = texture(sandTexture, Texcoord);
-	}
-	else if(texture_num == 5){
+	else{
+		// output colour is lighting model and texture
+		vec4 texel = texture(cactusTexture, Texcoord);
+		if(texture_num == 0){
+			texel = texture(redTexture, Texcoord);
+		}
+		else if(texture_num == 1){
+			texel = texture(blackTexture, Texcoord);
+		}
+		else if(texture_num == 2){
+			texel = texture(greyTexture, Texcoord);
+		}	
+		else if(texture_num == 3){
+			texel = texture(cactusTexture, Texcoord);
+		}
+		else if(texture_num == 4){
+			texel = texture(sandTexture, Texcoord);
+		}
+		else if(texture_num == 5){
 		texel = texture(roadTexture, Texcoord);
+		}
+		else if(texture_num == 6){
+			texel = texture(skyTexture, Texcoord);
+		}
+		fragment_colour = vec4(Is+Id+Ia, 1.0)* texel; 
 	}
-	else if(texture_num == 6){
-		texel = texture(skyTexture, Texcoord);
-	}
-	fragment_colour = vec4(Is+Id+Ia, 1.0)* texel; 
 }

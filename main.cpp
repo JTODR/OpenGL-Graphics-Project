@@ -5,11 +5,11 @@
 //Some Windows Headers (For Time, IO, etc.)
 #include <windows.h>
 #include <mmsystem.h>
-//#include "SOIL.h"
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <iostream>
 #include "maths_funcs.h"
+#include "text.h"
 
 // Assimp includes
 
@@ -104,6 +104,10 @@ GLfloat rotate_liz_x = 0;
 GLfloat rotate_liz_z = 0;
 
 GLfloat rotate_wheel_deg = 0;
+
+int rotate_count = 1;
+string speed_to_print;
+GLfloat speed_of_car = 0.1;
 
 
 GLfloat offset = 1.0f;
@@ -340,7 +344,7 @@ int generateObjectBufferMesh(GLuint vao) {
 
 #pragma endregion VBO_FUNCTIONS
 
-
+double speed;
 void display() {
 
 
@@ -358,6 +362,31 @@ void display() {
 	int view_mat_location = glGetUniformLocation(shaderProgramID, "view_matrix");
 	int proj_mat_location = glGetUniformLocation(shaderProgramID, "proj_matrix");
 	int texture_num_loc = glGetUniformLocation(shaderProgramID, "texture_num");
+
+	//glBindTexture(GL_TEXTURE_2D, 0);
+	int x = 20, y = 560;
+	float r = 1.0, g = 1.0, b = 1.0;
+
+	
+	if (trans_car_z < 60)
+		speed = 100 + trans_car_z;
+	else
+		speed += 0.01;
+	
+	speed_to_print = to_string(speed);
+	speed_to_print = speed_to_print.substr(0, 5);
+	//speed_to_print = 
+	speed_to_print = "Speed: " + speed_to_print +" km/h";
+
+	glUniform1i(texture_num_loc, -1);
+	//glColor3f(r, g, b);
+	glWindowPos2f(x, y);
+	int len, i;
+	len = speed_to_print.size();
+	for (i = 0; i < len; i++) {
+		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, speed_to_print[i]);
+	}
+
 
 
 	///////////////////////////////////// CAR SHELL, WINDOWS/ GRILL AND LIGHTS/ EXHAUST /////////////////////////////////////
@@ -613,7 +642,8 @@ void display() {
 	glutSwapBuffers();
 }
 
-int rotate_count = 0;
+//float speed_of_car = 0.1;
+
 
 void updateScene() {
 
@@ -626,23 +656,38 @@ void updateScene() {
 		delta = 0.03f;
 	last_time = curr_time;
 
-	// speed of car controlled here
-	float speed_of_car = 0.1;
-	//float speed_of_car = 0.01;
-	if (trans_car_z < 15) {
+	// car movement 
+	if (trans_car_z < -20 && trans_car_z > -30) {
+		speed_of_car = 0.1;
+	}
+	else if (trans_car_z < -10 && trans_car_z > -20) {
+		speed_of_car = 0.15;
+	}
+	else if (trans_car_z < 0 && trans_car_z > -10) {
+		speed_of_car = 0.2;
+	}
+	else
+		speed_of_car = 0.22;
+	
+	
+	if (trans_car_z < 200) {
 		trans_car_z += speed_of_car;
 		rotate_wheel_deg += (speed_of_car * 200);
+		cout << "trans_car_z = " << trans_car_z << endl;
 	}
-	else if (trans_car_x > -3) {
+	/*else if (trans_car_x > -3) {
 		trans_car_x -= 0.5;
 		trans_car_z += 0.5;
 		rotate_y_car += 15.0f;
 	}
-	else {
+	else if (trans_car_z < -3){
 		trans_car_z += speed_of_car;
+		cout << "trans_car_z = " << trans_car_z << endl;
 		rotate_y_car = 0.0f;
-	}
+	}*/
 
+
+	// lizard movement
 	if (rotate_count % 4 == 0 && trans_liz_z < 3) {
 		rotate_liz_z = 5.0f;
 	}
@@ -651,7 +696,6 @@ void updateScene() {
 	}
 	
 	rotate_count++;
-	
 
 	if (trans_car_z > -10 && trans_liz_x > 3) {
 		trans_liz_x -= 0.05f;
@@ -771,7 +815,12 @@ void init()
 
 	loadTextures(textures[6], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\sky_texture.jpg", GL_TEXTURE6, "skyTexture", 6);
 
-
+	//init_text_rendering("freemono.png", "freemono.meta", width, height);
+	//// x and y are -1 to 1
+	//// size_px is the maximum glyph size in pixels (try 100.0f)
+	//// r,g,b,a are red,blue,green,opacity values between 0.0 and 1.0
+	//// if you want to change the text later you will use the returned integer as a parameter
+	//int hello_id = add_text("Hello world!", 0, 0, 100.0f, 1, 1, 1, 1);
 
 }
 
