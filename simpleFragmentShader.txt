@@ -11,6 +11,7 @@ uniform sampler2D cactusTexture;
 uniform sampler2D sandTexture;
 uniform sampler2D roadTexture;
 uniform sampler2D skyTexture;
+uniform sampler2D yellowTexture;
 
 uniform int texture_num;
 
@@ -56,6 +57,9 @@ void main(){
 	if(texture_num == -1){
 		fragment_colour = vec4(1.0, 0, 0, 1.0);
 	}	
+	else if(texture_num == -2){
+		fragment_colour = vec4(1.0, 1.0, 0.0, 1.0);
+	}
 	else{
 		// output colour is lighting model and texture
 		vec4 texel = texture(cactusTexture, Texcoord);
@@ -80,6 +84,10 @@ void main(){
 		else if(texture_num == 6){
 			texel = texture(skyTexture, Texcoord);
 		}
+		else if(texture_num == 7){
+			texel = texture(yellowTexture, Texcoord);
+		}
+
 		fragment_colour = vec4(Is+Id+Ia, 1.0)* texel; 
 	}
 }

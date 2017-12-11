@@ -94,8 +94,16 @@ GLfloat model_rotate = 0.0f;//90.0f;
 
 GLfloat trans_car_x = 3;
 GLfloat trans_car_y = 0.4;
-GLfloat trans_car_z = -40;
+GLfloat trans_car_z = -70;
 GLfloat rotate_y_car = 0;
+
+GLfloat trans_car_x2 = -3;
+GLfloat trans_car_y2 = 0.4;
+GLfloat trans_car_z2 = -70;
+
+GLfloat speed_of_car1 = 0.25;
+GLfloat speed_of_car2 = 0.28;
+
 //
 GLfloat trans_liz_x = 20.0;
 GLfloat trans_liz_y = 0.8;
@@ -107,7 +115,8 @@ GLfloat rotate_wheel_deg = 0;
 
 int rotate_count = 1;
 string speed_to_print;
-GLfloat speed_of_car = 0.1;
+
+
 
 
 GLfloat offset = 1.0f;
@@ -120,7 +129,7 @@ GLfloat yaw;
 //GLuint texture2;
 //GLuint texture3;
 
-GLuint textures[7];
+GLuint textures[8];
 
 #pragma region MESH LOADING
 /*----------------------------------------------------------------------------
@@ -345,6 +354,7 @@ int generateObjectBufferMesh(GLuint vao) {
 #pragma endregion VBO_FUNCTIONS
 
 double speed;
+double speed2;
 void display() {
 
 
@@ -363,27 +373,43 @@ void display() {
 	int proj_mat_location = glGetUniformLocation(shaderProgramID, "proj_matrix");
 	int texture_num_loc = glGetUniformLocation(shaderProgramID, "texture_num");
 
-	//glBindTexture(GL_TEXTURE_2D, 0);
-	int x = 20, y = 560;
-	float r = 1.0, g = 1.0, b = 1.0;
 
-	
+	// Text drawing stuff here - red car
+	int x = 20, y = 560;
 	if (trans_car_z < 60)
 		speed = 100 + trans_car_z;
 	else
-		speed += 0.01;
+		speed += 0.05;
 	
 	speed_to_print = to_string(speed);
 	speed_to_print = speed_to_print.substr(0, 5);
-	//speed_to_print = 
-	speed_to_print = "Speed: " + speed_to_print +" km/h";
+	speed_to_print = "Red car - " + speed_to_print +" km/h";
 
 	glUniform1i(texture_num_loc, -1);
-	//glColor3f(r, g, b);
 	glWindowPos2f(x, y);
-	int len, i;
+	int len;
 	len = speed_to_print.size();
-	for (i = 0; i < len; i++) {
+	for (int i = 0; i < len; i++) {
+		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, speed_to_print[i]);
+	}
+
+	// Text drawing stuff here - yellow car
+	x = 20;
+	y = 530;
+
+	if (trans_car_z < 60)
+		speed2 = 100 + trans_car_z2;
+	else
+		speed2 += 0.08;
+
+	speed_to_print = to_string(speed2);
+	speed_to_print = speed_to_print.substr(0, 5);
+	speed_to_print = "Yellow car - " + speed_to_print + " km/h";
+
+	glUniform1i(texture_num_loc, -2);
+	glWindowPos2f(x, y);
+	len = speed_to_print.size();
+	for (int i = 0; i < len; i++) {
 		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, speed_to_print[i]);
 	}
 
@@ -563,6 +589,171 @@ void display() {
 	glBindTexture(GL_TEXTURE_2D, textures[1]);
 	glDrawArrays(GL_TRIANGLES, 0, point_count7);
 
+	////////////////////////////////////////// YELLOW CAR /////////////////////////////////////////***************************
+	// Root of the Hierarchy - Car shell	
+	mat4 car2_model = identity_mat4();
+	car2_model = rotate_y_deg(car2_model, rotate_y_car);
+	car2_model = translate(car2_model, vec3(trans_car_x2, trans_car_y2, trans_car_z2));
+
+	mat4 global2 = car2_model;
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global2.m);
+	glUniform1i(texture_num_loc, 7);
+	glBindVertexArray(vao1);
+	glBindTexture(GL_TEXTURE_2D, textures[7]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count1);
+
+	// windows and grill
+	mat4 modelWindowsGrill2 = identity_mat4();
+	modelWindowsGrill2 = translate(modelWindowsGrill2, vec3(0, -2, 0));
+
+	mat4 global2a = global2 * modelWindowsGrill2;
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global2a.m);
+	glUniform1i(texture_num_loc, 1);
+	glBindVertexArray(vao2);
+	glBindTexture(GL_TEXTURE_2D, textures[1]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count2);
+
+	// lights and exhaust of car
+	mat4 modelLightsExhaust2 = identity_mat4();
+	modelLightsExhaust2 = translate(modelLightsExhaust2, vec3(0, 0, 0));
+
+	mat4 global2b = global2 * modelLightsExhaust2;
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global2b.m);
+	glUniform1i(texture_num_loc, 2);
+	glBindVertexArray(vao8);
+	glBindTexture(GL_TEXTURE_2D, textures[2]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count8);
+
+
+	//////////////////////////////////// FRONT LEFT WHEEL /////////////////////////////////////
+
+	// front left rim
+	mat4 model_fl_rim2 = identity_mat4();
+	model_fl_rim2 = rotate_x_deg(model_fl_rim2, rotate_wheel_deg);
+	model_fl_rim2 = translate(model_fl_rim2, vec3(0.9, 0.65, 1.4));
+
+	mat4 global_fl_rim2 = global2 * model_fl_rim2;
+
+	// update uniforms & draw
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global_fl_rim2.m);
+	glUniform1i(texture_num_loc, 2);
+	glBindVertexArray(vao6);
+	glBindTexture(GL_TEXTURE_2D, textures[2]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count6);
+
+
+	// front left tire
+	mat4 model_fl_tire2 = identity_mat4();
+	model_fl_tire2 = rotate_x_deg(model_fl_tire2, rotate_wheel_deg);
+	model_fl_tire2 = translate(model_fl_tire2, vec3(0.9, 0.65, 1.4));
+
+	mat4 global_fl_tire2 = global2 * model_fl_tire2;
+
+	// update uniforms & draw
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global_fl_tire2.m);
+	glUniform1i(texture_num_loc, 1);
+	glBindVertexArray(vao7);
+	glBindTexture(GL_TEXTURE_2D, textures[1]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count7);
+
+	//////////////////////////////////// FRONT RIGHT WHEEL /////////////////////////////////////
+
+	// front right rim
+	mat4 model_fr_rim2 = identity_mat4();
+	model_fr_rim2 = rotate_y_deg(model_fr_rim2, 180.0);
+	model_fr_rim2 = rotate_x_deg(model_fr_rim2, rotate_wheel_deg);
+	model_fr_rim2 = translate(model_fr_rim2, vec3(-0.7, 0.65, 1.4));
+
+	mat4 global_fr_rim2 = global2 * model_fr_rim2;
+
+	// update uniforms & draw
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global_fr_rim2.m);
+	glUniform1i(texture_num_loc, 2);
+	glBindVertexArray(vao6);
+	glBindTexture(GL_TEXTURE_2D, textures[2]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count6);
+
+
+	// front right tire
+	mat4 model_fr_tire2 = identity_mat4();
+	model_fr_tire2 = rotate_x_deg(model_fr_tire2, rotate_wheel_deg);
+	model_fr_tire2 = translate(model_fr_tire2, vec3(-0.7, 0.65, 1.4));
+
+	mat4 global_fr_tire2 = global2 * model_fr_tire2;
+
+	// update uniforms & draw
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global_fr_tire2.m);
+	glUniform1i(texture_num_loc, 1);
+	glBindVertexArray(vao7);
+	glBindTexture(GL_TEXTURE_2D, textures[1]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count7);
+
+	//////////////////////////////////// BACK LEFT WHEEL /////////////////////////////////////
+
+	// back left rim
+	mat4 model_bl_rim2 = identity_mat4();
+	model_bl_rim2 = rotate_x_deg(model_bl_rim2, rotate_wheel_deg);
+	model_bl_rim2 = translate(model_bl_rim2, vec3(0.9, 0.65, -1.2));
+
+	mat4 global_bl_rim2 = global2 * model_bl_rim2;
+
+	// update uniforms & draw
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global_bl_rim2.m);
+	glUniform1i(texture_num_loc, 2);
+	glBindVertexArray(vao6);
+	glBindTexture(GL_TEXTURE_2D, textures[2]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count6);
+
+
+	// back left tire
+	mat4 model_bl_tire2 = identity_mat4();
+	model_bl_tire2 = rotate_x_deg(model_bl_tire2, rotate_wheel_deg);
+	model_bl_tire2 = translate(model_bl_tire2, vec3(0.9, 0.65, -1.2));
+
+	mat4 global_bl_tire2 = global2 * model_bl_tire2;
+
+	// update uniforms & draw
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global_bl_tire2.m);
+	glUniform1i(texture_num_loc, 1);
+	glBindVertexArray(vao7);
+	glBindTexture(GL_TEXTURE_2D, textures[1]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count7);
+
+	//////////////////////////////////// BACK RIGHT WHEEL /////////////////////////////////////
+
+	// back right rim
+	mat4 model_br_rim2 = identity_mat4();
+	model_br_rim2 = rotate_y_deg(model_br_rim2, 180.0);
+	model_br_rim2 = rotate_x_deg(model_br_rim2, rotate_wheel_deg);
+	model_br_rim2 = translate(model_br_rim2, vec3(-0.7, 0.65, -1.2));
+
+	mat4 global_br_rim2 = global2 * model_br_rim2;
+
+	// update uniforms & draw
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global_br_rim2.m);
+	glUniform1i(texture_num_loc, 2);
+	glBindVertexArray(vao6);
+	glBindTexture(GL_TEXTURE_2D, textures[2]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count6);
+
+
+	// back right tire
+	mat4 model_br_tire2 = identity_mat4();
+	model_br_tire2 = rotate_x_deg(model_br_tire2, rotate_wheel_deg);
+	model_br_tire2 = translate(model_br_tire2, vec3(-0.7, 0.65, -1.2));
+
+	mat4 global_br_tire2 = global2 * model_br_tire2;
+
+	// update uniforms & draw
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global_br_tire2.m);
+	glUniform1i(texture_num_loc, 1);
+	glBindVertexArray(vao7);
+	glBindTexture(GL_TEXTURE_2D, textures[1]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count7);
+
 	////////////////////////////////////////// CACTUSES ////////////////////////////////////////
 
 	// Cactuses mesh
@@ -656,35 +847,51 @@ void updateScene() {
 		delta = 0.03f;
 	last_time = curr_time;
 
-	// car movement 
+	// red car movement 
 	if (trans_car_z < -20 && trans_car_z > -30) {
-		speed_of_car = 0.1;
+		speed_of_car1 = 0.28;
 	}
 	else if (trans_car_z < -10 && trans_car_z > -20) {
-		speed_of_car = 0.15;
+		speed_of_car1 = 0.3;
 	}
 	else if (trans_car_z < 0 && trans_car_z > -10) {
-		speed_of_car = 0.2;
+		speed_of_car1 = 0.32;
 	}
 	else
-		speed_of_car = 0.22;
-	
+		speed_of_car1 = 0.37;
 	
 	if (trans_car_z < 200) {
-		trans_car_z += speed_of_car;
-		rotate_wheel_deg += (speed_of_car * 200);
+		trans_car_z += speed_of_car1;
+		rotate_wheel_deg += (speed_of_car1 * 200);
 		cout << "trans_car_z = " << trans_car_z << endl;
 	}
-	/*else if (trans_car_x > -3) {
-		trans_car_x -= 0.5;
-		trans_car_z += 0.5;
-		rotate_y_car += 15.0f;
+
+
+
+
+
+	// yellow car movement 
+	if (trans_car_z2 < -20 && trans_car_z2 > -30) {
+		speed_of_car2 = 0.3;
 	}
-	else if (trans_car_z < -3){
-		trans_car_z += speed_of_car;
-		cout << "trans_car_z = " << trans_car_z << endl;
-		rotate_y_car = 0.0f;
-	}*/
+	else if (trans_car_z2 < -10 && trans_car_z2 > -20) {
+		speed_of_car2 = 0.32;
+	}
+	else if (trans_car_z2 < 0 && trans_car_z2 > -10) {
+		speed_of_car2 = 0.37;
+	}
+	else
+		speed_of_car2 = 0.4;
+
+
+	if (trans_car_z2 < 200) {
+		trans_car_z2 += speed_of_car2;
+		rotate_wheel_deg += (speed_of_car2 * 200);
+		cout << "trans_car_z2 = " << trans_car_z2 << endl;
+	}
+
+
+
 
 
 	// lizard movement
@@ -799,7 +1006,7 @@ void init()
 	point_count10 = generateObjectBufferMesh(vao10);
 
 
-	glGenTextures(7, textures);
+	glGenTextures(8, textures);
 
 	loadTextures(textures[0], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\red.jpg", GL_TEXTURE0, "redTexture", 0);
 
@@ -815,12 +1022,7 @@ void init()
 
 	loadTextures(textures[6], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\sky_texture.jpg", GL_TEXTURE6, "skyTexture", 6);
 
-	//init_text_rendering("freemono.png", "freemono.meta", width, height);
-	//// x and y are -1 to 1
-	//// size_px is the maximum glyph size in pixels (try 100.0f)
-	//// r,g,b,a are red,blue,green,opacity values between 0.0 and 1.0
-	//// if you want to change the text later you will use the returned integer as a parameter
-	//int hello_id = add_text("Hello world!", 0, 0, 100.0f, 1, 1, 1, 1);
+	loadTextures(textures[7], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\yellow.jpg", GL_TEXTURE7, "yellowTexture", 7);
 
 }
 
