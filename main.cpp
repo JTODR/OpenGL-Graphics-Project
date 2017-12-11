@@ -38,7 +38,7 @@ MESH TO LOAD
 #define MESH_NAME7 "../camaro_tire_origin.obj"
 #define MESH_NAME8 "../camaro_lights_exhaust.obj"
 #define MESH_NAME9 "../road2.obj"
-#define MESH_NAME10 "../sky_box3.obj"
+#define MESH_NAME10 "../sky_box8.obj"
 /*----------------------------------------------------------------------------
 ----------------------------------------------------------------------------*/
 
@@ -116,6 +116,7 @@ GLfloat rotate_wheel_deg = 0;
 int rotate_count = 1;
 string speed_to_print;
 
+bool look_flag = false;
 
 
 
@@ -365,25 +366,25 @@ void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(shaderProgramID);
 
-	
+
 
 	//Declare your uniform variables that will be used in your shader
 	int matrix_location = glGetUniformLocation(shaderProgramID, "model_matrix");
 	int view_mat_location = glGetUniformLocation(shaderProgramID, "view_matrix");
 	int proj_mat_location = glGetUniformLocation(shaderProgramID, "proj_matrix");
 	int texture_num_loc = glGetUniformLocation(shaderProgramID, "texture_num");
-
+	int light_pos_loc = glGetUniformLocation(shaderProgramID, "light_pos_z");
 
 	// Text drawing stuff here - red car
 	int x = 20, y = 560;
-	if (trans_car_z < 60)
-		speed = 100 + trans_car_z;
+	if (trans_car_z < 150)
+		speed = 50 + trans_car_z;
 	else
-		speed += 0.05;
-	
+		speed +=  0.2;
+
 	speed_to_print = to_string(speed);
 	speed_to_print = speed_to_print.substr(0, 5);
-	speed_to_print = "Red car - " + speed_to_print +" km/h";
+	speed_to_print = "Red car - " + speed_to_print + " km/h";
 
 	glUniform1i(texture_num_loc, -1);
 	glWindowPos2f(x, y);
@@ -397,10 +398,10 @@ void display() {
 	x = 20;
 	y = 530;
 
-	if (trans_car_z < 60)
-		speed2 = 100 + trans_car_z2;
+	if (trans_car_z < 150)
+		speed2 = 50 + trans_car_z2;
 	else
-		speed2 += 0.08;
+		speed2 += 0.1;
 
 	speed_to_print = to_string(speed2);
 	speed_to_print = speed_to_print.substr(0, 5);
@@ -423,19 +424,27 @@ void display() {
 	mat4 model1 = identity_mat4();
 	model1 = rotate_y_deg(model1, rotate_y_car);
 	model1 = translate(model1, vec3(trans_car_x, trans_car_y, trans_car_z));
+	if (look_flag) {
+		//mat4 look_at(const vec3& cam_pos, vec3 targ_pos, const vec3& up) {
+		view = look_at(vec3(view_x, view_y, trans_car_z), vec3(trans_car_x, trans_car_y,trans_car_z), vec3(0.0f, 10.0f, 0.0f));
+	}
 	
-	view = translate(view, vec3(view_x, view_y, view_z));
-	view = rotate_x_deg(view, rotate_camera_x);
-	view = rotate_y_deg(view, rotate_camera_y);
+		//view_z = -18.0f -trans_car_z2;
+		view = translate(view, vec3(view_x, view_y, view_z));
+		view = rotate_x_deg(view, rotate_camera_x);
+		view = rotate_y_deg(view, rotate_camera_y);
+	
 
 	mat4 global1 = model1;
 
 	glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, persp_proj.m);
 	glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, view.m);
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global1.m);
-	glUniform1i(texture_num_loc, 0);
-	glBindVertexArray(vao1);		
-	glBindTexture(GL_TEXTURE_2D, textures[0]);							
+	glUniform1i(texture_num_loc, 0);		// set the texture number
+	GLfloat light_pos_z = trans_car_z;
+	glUniform1f(light_pos_loc, light_pos_z);		// set the light position
+	glBindVertexArray(vao1);
+	glBindTexture(GL_TEXTURE_2D, textures[0]);
 	glDrawArrays(GL_TRIANGLES, 0, point_count1);
 
 	// windows and grill
@@ -768,6 +777,27 @@ void display() {
 	glBindTexture(GL_TEXTURE_2D, textures[3]);
 	glDrawArrays(GL_TRIANGLES, 0, point_count3);
 
+
+	mat4 model_cactuses2 = identity_mat4();
+	model_cactuses2 = translate(model_cactuses2, vec3(-150, 0, 0));
+	model_cactuses2 = rotate_y_deg(model_cactuses2, 90.0f);
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, model_cactuses2.m);
+	glUniform1i(texture_num_loc, 3);
+	glBindVertexArray(vao3);
+	glBindTexture(GL_TEXTURE_2D, textures[3]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count3);
+
+	mat4 model_cactuses3 = identity_mat4();
+	model_cactuses3 = translate(model_cactuses3, vec3(-100, 0, 0));
+	model_cactuses3 = rotate_y_deg(model_cactuses3, 90.0f);
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, model_cactuses3.m);
+	glUniform1i(texture_num_loc, 3);
+	glBindVertexArray(vao3);
+	glBindTexture(GL_TEXTURE_2D, textures[3]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count3);
+
 	////////////////////////////////////////// ROAD ////////////////////////////////////////
 
 	// Road mesh
@@ -798,6 +828,20 @@ void display() {
 	glBindTexture(GL_TEXTURE_2D, textures[4]);
 	glDrawArrays(GL_TRIANGLES, 0, point_count4);
 
+	// Sand mesh
+	mat4 sand_model2 = identity_mat4();
+	sand_model2 = translate(sand_model2, vec3(-150, 0, 0));
+	sand_model2 = rotate_y_deg(sand_model2, 90.0f);
+
+	// update uniforms & draw
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, sand_model2.m);
+	glBindVertexArray(vao4);
+	glUniform1i(texture_num_loc, 4);
+
+	glBindTexture(GL_TEXTURE_2D, textures[4]);
+	glDrawArrays(GL_TRIANGLES, 0, point_count4);
+
+
 	////////////////////////////////////////// SKY BOX ////////////////////////////////////////
 
 	// sky box mesh
@@ -805,8 +849,10 @@ void display() {
 	sky_model = translate(sky_model, vec3(0, 0, 0));
 	sky_model = rotate_y_deg(sky_model, 90.0f);
 
+	mat4 global_sky = global2 * sky_model;
+
 	// update uniforms & draw
-	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, sky_model.m);
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global_sky.m);
 	glBindVertexArray(vao10);
 	glUniform1i(texture_num_loc, 6);
 
@@ -816,12 +862,12 @@ void display() {
 
 
 	//////////////////////////////////////////// LIZARD /////////////////////////////////////////
-	
+
 	// Lizard mesh
 	mat4 lizard_model = identity_mat4();
 	lizard_model = rotate_z_deg(lizard_model, rotate_liz_z);
 	lizard_model = rotate_y_deg(lizard_model, 270);
-	lizard_model = translate(lizard_model, vec3(trans_liz_x, trans_liz_y, trans_liz_z));
+	lizard_model = translate(lizard_model, vec3(trans_liz_x, trans_liz_y, 80));
 
 	// update uniforms & draw
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, lizard_model.m);
@@ -835,6 +881,8 @@ void display() {
 
 //float speed_of_car = 0.1;
 
+GLfloat new_speed1 = 0.37;
+GLfloat new_speed2 = 0.4;
 
 void updateScene() {
 
@@ -857,10 +905,12 @@ void updateScene() {
 	else if (trans_car_z < 0 && trans_car_z > -10) {
 		speed_of_car1 = 0.32;
 	}
-	else
-		speed_of_car1 = 0.37;
-	
-	if (trans_car_z < 200) {
+	else {
+		new_speed1 += 0.0002;
+		speed_of_car1 = new_speed1;
+	}
+
+	if (trans_car_z < 300) {
 		trans_car_z += speed_of_car1;
 		rotate_wheel_deg += (speed_of_car1 * 200);
 		cout << "trans_car_z = " << trans_car_z << endl;
@@ -880,11 +930,12 @@ void updateScene() {
 	else if (trans_car_z2 < 0 && trans_car_z2 > -10) {
 		speed_of_car2 = 0.37;
 	}
-	else
-		speed_of_car2 = 0.4;
+	else {
+		new_speed2 += 0.00001;
+		speed_of_car2 = new_speed2;
+	}
 
-
-	if (trans_car_z2 < 200) {
+	if (trans_car_z2 < 300) {
 		trans_car_z2 += speed_of_car2;
 		rotate_wheel_deg += (speed_of_car2 * 200);
 		cout << "trans_car_z2 = " << trans_car_z2 << endl;
@@ -901,11 +952,11 @@ void updateScene() {
 	else {
 		rotate_liz_z = -5.0f;
 	}
-	
+
 	rotate_count++;
 
-	if (trans_car_z > -10 && trans_liz_x > 3) {
-		trans_liz_x -= 0.05f;
+	if (trans_car_z > 50 && trans_liz_x > 3) {
+		trans_liz_x -= 0.1f;
 	}
 	// Draw the next frame
 	glutPostRedisplay();
@@ -941,7 +992,7 @@ void loadTextures(GLuint texture, const char* filepath, int active_arg, const GL
 			bottom++;
 		}
 	}
-	
+
 	glActiveTexture(active_arg);
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_RGBA, GL_UNSIGNED_BYTE,
@@ -1026,6 +1077,8 @@ void init()
 
 }
 
+//bool look_flag = false;
+
 // Placeholder code for the keypress
 void keypress(unsigned char key, int x, int y) {
 
@@ -1059,6 +1112,9 @@ void keypress(unsigned char key, int x, int y) {
 	case 'd':
 		view_z = view_z + 1.0f;
 		cout << "view_z: " << view_z << endl;
+		break;
+	case 'l':
+		look_flag = true;
 		break;
 
 	}
@@ -1123,4 +1179,3 @@ int main(int argc, char** argv) {
 	glutMainLoop();
 	return 0;
 }
-
