@@ -105,9 +105,10 @@ GLfloat speed_of_car1 = 0.25;
 GLfloat speed_of_car2 = 0.28;
 
 //
-GLfloat trans_liz_x = 20.0;
+GLfloat trans_liz_x = 20;
 GLfloat trans_liz_y = 0.8;
-GLfloat trans_liz_z = 20.0;
+GLfloat trans_liz_z = 305;
+
 GLfloat rotate_liz_x = 0;
 GLfloat rotate_liz_z = 0;
 
@@ -116,7 +117,7 @@ GLfloat rotate_wheel_deg = 0;
 int rotate_count = 1;
 string speed_to_print;
 
-bool look_flag = false;
+int item_look = 0;
 
 
 
@@ -382,9 +383,12 @@ void display() {
 	else
 		speed +=  0.2;
 
-	speed_to_print = to_string(speed);
+	speed_to_print = to_string(abs(speed));
 	speed_to_print = speed_to_print.substr(0, 5);
-	speed_to_print = "Red car - " + speed_to_print + " km/h";
+	if (trans_car_z < 300)
+		speed_to_print = "Red car - " + speed_to_print + " km/h";
+	else
+		speed_to_print = "Finished!";
 
 	glUniform1i(texture_num_loc, -1);
 	glWindowPos2f(x, y);
@@ -403,9 +407,12 @@ void display() {
 	else
 		speed2 += 0.1;
 
-	speed_to_print = to_string(speed2);
+	speed_to_print = to_string(abs(speed2));
 	speed_to_print = speed_to_print.substr(0, 5);
-	speed_to_print = "Yellow car - " + speed_to_print + " km/h";
+	if (trans_car_z2 < 300)
+		speed_to_print = "Yellow car - " + speed_to_print + " km/h";
+	else
+		speed_to_print = "Finished!";
 
 	glUniform1i(texture_num_loc, -2);
 	glWindowPos2f(x, y);
@@ -424,15 +431,15 @@ void display() {
 	mat4 model1 = identity_mat4();
 	model1 = rotate_y_deg(model1, rotate_y_car);
 	model1 = translate(model1, vec3(trans_car_x, trans_car_y, trans_car_z));
-	if (look_flag) {
-		//mat4 look_at(const vec3& cam_pos, vec3 targ_pos, const vec3& up) {
-		view = look_at(vec3(view_x, view_y, trans_car_z), vec3(trans_car_x, trans_car_y,trans_car_z), vec3(0.0f, 10.0f, 0.0f));
-	}
-	
-		//view_z = -18.0f -trans_car_z2;
-		view = translate(view, vec3(view_x, view_y, view_z));
-		view = rotate_x_deg(view, rotate_camera_x);
-		view = rotate_y_deg(view, rotate_camera_y);
+
+
+
+	if(item_look == 0)
+		view_z = -18.0f -trans_car_z;
+	view = translate(view, vec3(view_x, view_y, view_z));
+	view = rotate_x_deg(view, rotate_camera_x);
+	view = rotate_y_deg(view, rotate_camera_y);
+
 	
 
 	mat4 global1 = model1;
@@ -849,7 +856,7 @@ void display() {
 	sky_model = translate(sky_model, vec3(0, 0, 0));
 	sky_model = rotate_y_deg(sky_model, 90.0f);
 
-	mat4 global_sky = global2 * sky_model;
+	mat4 global_sky = global1 * sky_model;
 
 	// update uniforms & draw
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global_sky.m);
@@ -867,7 +874,7 @@ void display() {
 	mat4 lizard_model = identity_mat4();
 	lizard_model = rotate_z_deg(lizard_model, rotate_liz_z);
 	lizard_model = rotate_y_deg(lizard_model, 270);
-	lizard_model = translate(lizard_model, vec3(trans_liz_x, trans_liz_y, 80));
+	lizard_model = translate(lizard_model, vec3(trans_liz_x, trans_liz_y, trans_liz_z));
 
 	// update uniforms & draw
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, lizard_model.m);
@@ -955,7 +962,7 @@ void updateScene() {
 
 	rotate_count++;
 
-	if (trans_car_z > 50 && trans_liz_x > 3) {
+	if (speed_to_print == "Finished!"){
 		trans_liz_x -= 0.1f;
 	}
 	// Draw the next frame
@@ -1113,8 +1120,19 @@ void keypress(unsigned char key, int x, int y) {
 		view_z = view_z + 1.0f;
 		cout << "view_z: " << view_z << endl;
 		break;
-	case 'l':
-		look_flag = true;
+	case '0':
+		item_look = 0;
+	case '1':
+		item_look = 1;
+		break;
+	case '2':
+		item_look = 2;
+		break;
+	case '3':
+		item_look = 3;
+		break;
+	case '4':
+		item_look = 1;
 		break;
 
 	}
