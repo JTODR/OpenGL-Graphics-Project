@@ -38,7 +38,7 @@ MESH TO LOAD
 #define MESH_NAME7 "../camaro_tire_origin.obj"
 #define MESH_NAME8 "../camaro_lights_exhaust.obj"
 #define MESH_NAME9 "../road2.obj"
-#define MESH_NAME10 "../sky_box8.obj"
+#define MESH_NAME10 "../sky_box9.obj"
 /*----------------------------------------------------------------------------
 ----------------------------------------------------------------------------*/
 
@@ -112,7 +112,8 @@ GLfloat trans_liz_z = 305;
 GLfloat rotate_liz_x = 0;
 GLfloat rotate_liz_z = 0;
 
-GLfloat rotate_wheel_deg = 0;
+GLfloat rotate_wheel_deg1 = 0;
+GLfloat rotate_wheel_deg2 = 0;
 
 int rotate_count = 1;
 string speed_to_print;
@@ -427,7 +428,7 @@ void display() {
 
 	// Root of the Hierarchy - Car shell
 	mat4 view = identity_mat4();
-	mat4 persp_proj = perspective(45.0, (float)width / (float)height, 0.1, 100.0);
+	mat4 persp_proj = perspective(45.0, (float)width / (float)height, 0.1, 1000.0);
 	mat4 model1 = identity_mat4();
 	model1 = rotate_y_deg(model1, rotate_y_car);
 	model1 = translate(model1, vec3(trans_car_x, trans_car_y, trans_car_z));
@@ -447,7 +448,7 @@ void display() {
 	glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, persp_proj.m);
 	glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, view.m);
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global1.m);
-	glUniform1i(texture_num_loc, 0);		// set the texture number
+	glUniform1i(texture_num_loc, 0);		// set the texture number to reference the correct image
 	GLfloat light_pos_z = trans_car_z;
 	glUniform1f(light_pos_loc, light_pos_z);		// set the light position
 	glBindVertexArray(vao1);
@@ -483,7 +484,7 @@ void display() {
 
 	// front left rim
 	mat4 model_fl_rim = identity_mat4();
-	model_fl_rim = rotate_x_deg(model_fl_rim, rotate_wheel_deg);
+	model_fl_rim = rotate_x_deg(model_fl_rim, rotate_wheel_deg1);
 	model_fl_rim = translate(model_fl_rim, vec3(0.9, 0.65, 1.4));
 
 	mat4 global_fl_rim = global1 * model_fl_rim;
@@ -498,7 +499,7 @@ void display() {
 
 	// front left tire
 	mat4 model_fl_tire = identity_mat4();
-	model_fl_tire = rotate_x_deg(model_fl_tire, rotate_wheel_deg);
+	model_fl_tire = rotate_x_deg(model_fl_tire, rotate_wheel_deg1);
 	model_fl_tire = translate(model_fl_tire, vec3(0.9, 0.65, 1.4));
 
 	mat4 global_fl_tire = global1 * model_fl_tire;
@@ -515,7 +516,7 @@ void display() {
 	// front right rim
 	mat4 model_fr_rim = identity_mat4();
 	model_fr_rim = rotate_y_deg(model_fr_rim, 180.0);
-	model_fr_rim = rotate_x_deg(model_fr_rim, rotate_wheel_deg);
+	model_fr_rim = rotate_x_deg(model_fr_rim, rotate_wheel_deg1);
 	model_fr_rim = translate(model_fr_rim, vec3(-0.7, 0.65, 1.4));
 
 	mat4 global_fr_rim = global1 * model_fr_rim;
@@ -530,7 +531,7 @@ void display() {
 
 	// front right tire
 	mat4 model_fr_tire = identity_mat4();
-	model_fr_tire = rotate_x_deg(model_fr_tire, rotate_wheel_deg);
+	model_fr_tire = rotate_x_deg(model_fr_tire, rotate_wheel_deg1);
 	model_fr_tire = translate(model_fr_tire, vec3(-0.7, 0.65, 1.4));
 
 	mat4 global_fr_tire = global1 * model_fr_tire;
@@ -546,7 +547,7 @@ void display() {
 
 	// back left rim
 	mat4 model_bl_rim = identity_mat4();
-	model_bl_rim = rotate_x_deg(model_bl_rim, rotate_wheel_deg);
+	model_bl_rim = rotate_x_deg(model_bl_rim, rotate_wheel_deg1);
 	model_bl_rim = translate(model_bl_rim, vec3(0.9, 0.65, -1.2));
 
 	mat4 global_bl_rim = global1 * model_bl_rim;
@@ -561,7 +562,7 @@ void display() {
 
 	// back left tire
 	mat4 model_bl_tire = identity_mat4();
-	model_bl_tire = rotate_x_deg(model_bl_tire, rotate_wheel_deg);
+	model_bl_tire = rotate_x_deg(model_bl_tire, rotate_wheel_deg1);
 	model_bl_tire = translate(model_bl_tire, vec3(0.9, 0.65, -1.2));
 
 	mat4 global_bl_tire = global1 * model_bl_tire;
@@ -578,7 +579,7 @@ void display() {
 	// back right rim
 	mat4 model_br_rim = identity_mat4();
 	model_br_rim = rotate_y_deg(model_br_rim, 180.0);
-	model_br_rim = rotate_x_deg(model_br_rim, rotate_wheel_deg);
+	model_br_rim = rotate_x_deg(model_br_rim, rotate_wheel_deg1);
 	model_br_rim = translate(model_br_rim, vec3(-0.7, 0.65, -1.2));
 
 	mat4 global_br_rim = global1 * model_br_rim;
@@ -593,7 +594,7 @@ void display() {
 
 	// back right tire
 	mat4 model_br_tire = identity_mat4();
-	model_br_tire = rotate_x_deg(model_br_tire, rotate_wheel_deg);
+	model_br_tire = rotate_x_deg(model_br_tire, rotate_wheel_deg1);
 	model_br_tire = translate(model_br_tire, vec3(-0.7, 0.65, -1.2));
 
 	mat4 global_br_tire = global1 * model_br_tire;
@@ -648,7 +649,7 @@ void display() {
 
 	// front left rim
 	mat4 model_fl_rim2 = identity_mat4();
-	model_fl_rim2 = rotate_x_deg(model_fl_rim2, rotate_wheel_deg);
+	model_fl_rim2 = rotate_x_deg(model_fl_rim2, rotate_wheel_deg2);
 	model_fl_rim2 = translate(model_fl_rim2, vec3(0.9, 0.65, 1.4));
 
 	mat4 global_fl_rim2 = global2 * model_fl_rim2;
@@ -663,7 +664,7 @@ void display() {
 
 	// front left tire
 	mat4 model_fl_tire2 = identity_mat4();
-	model_fl_tire2 = rotate_x_deg(model_fl_tire2, rotate_wheel_deg);
+	model_fl_tire2 = rotate_x_deg(model_fl_tire2, rotate_wheel_deg2);
 	model_fl_tire2 = translate(model_fl_tire2, vec3(0.9, 0.65, 1.4));
 
 	mat4 global_fl_tire2 = global2 * model_fl_tire2;
@@ -680,7 +681,7 @@ void display() {
 	// front right rim
 	mat4 model_fr_rim2 = identity_mat4();
 	model_fr_rim2 = rotate_y_deg(model_fr_rim2, 180.0);
-	model_fr_rim2 = rotate_x_deg(model_fr_rim2, rotate_wheel_deg);
+	model_fr_rim2 = rotate_x_deg(model_fr_rim2, rotate_wheel_deg2);
 	model_fr_rim2 = translate(model_fr_rim2, vec3(-0.7, 0.65, 1.4));
 
 	mat4 global_fr_rim2 = global2 * model_fr_rim2;
@@ -695,7 +696,7 @@ void display() {
 
 	// front right tire
 	mat4 model_fr_tire2 = identity_mat4();
-	model_fr_tire2 = rotate_x_deg(model_fr_tire2, rotate_wheel_deg);
+	model_fr_tire2 = rotate_x_deg(model_fr_tire2, rotate_wheel_deg2);
 	model_fr_tire2 = translate(model_fr_tire2, vec3(-0.7, 0.65, 1.4));
 
 	mat4 global_fr_tire2 = global2 * model_fr_tire2;
@@ -711,7 +712,7 @@ void display() {
 
 	// back left rim
 	mat4 model_bl_rim2 = identity_mat4();
-	model_bl_rim2 = rotate_x_deg(model_bl_rim2, rotate_wheel_deg);
+	model_bl_rim2 = rotate_x_deg(model_bl_rim2, rotate_wheel_deg2);
 	model_bl_rim2 = translate(model_bl_rim2, vec3(0.9, 0.65, -1.2));
 
 	mat4 global_bl_rim2 = global2 * model_bl_rim2;
@@ -726,7 +727,7 @@ void display() {
 
 	// back left tire
 	mat4 model_bl_tire2 = identity_mat4();
-	model_bl_tire2 = rotate_x_deg(model_bl_tire2, rotate_wheel_deg);
+	model_bl_tire2 = rotate_x_deg(model_bl_tire2, rotate_wheel_deg2);
 	model_bl_tire2 = translate(model_bl_tire2, vec3(0.9, 0.65, -1.2));
 
 	mat4 global_bl_tire2 = global2 * model_bl_tire2;
@@ -743,7 +744,7 @@ void display() {
 	// back right rim
 	mat4 model_br_rim2 = identity_mat4();
 	model_br_rim2 = rotate_y_deg(model_br_rim2, 180.0);
-	model_br_rim2 = rotate_x_deg(model_br_rim2, rotate_wheel_deg);
+	model_br_rim2 = rotate_x_deg(model_br_rim2, rotate_wheel_deg2);
 	model_br_rim2 = translate(model_br_rim2, vec3(-0.7, 0.65, -1.2));
 
 	mat4 global_br_rim2 = global2 * model_br_rim2;
@@ -758,7 +759,7 @@ void display() {
 
 	// back right tire
 	mat4 model_br_tire2 = identity_mat4();
-	model_br_tire2 = rotate_x_deg(model_br_tire2, rotate_wheel_deg);
+	model_br_tire2 = rotate_x_deg(model_br_tire2, rotate_wheel_deg2);
 	model_br_tire2 = translate(model_br_tire2, vec3(-0.7, 0.65, -1.2));
 
 	mat4 global_br_tire2 = global2 * model_br_tire2;
@@ -816,7 +817,6 @@ void display() {
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, road_model.m);
 	glBindVertexArray(vao9);
 	glUniform1i(texture_num_loc, 5);
-
 	glBindTexture(GL_TEXTURE_2D, textures[5]);
 	glDrawArrays(GL_TRIANGLES, 0, point_count9);
 
@@ -919,7 +919,7 @@ void updateScene() {
 
 	if (trans_car_z < 300) {
 		trans_car_z += speed_of_car1;
-		rotate_wheel_deg += (speed_of_car1 * 200);
+		rotate_wheel_deg1 += (speed_of_car1 * 200);
 		cout << "trans_car_z = " << trans_car_z << endl;
 	}
 
@@ -944,7 +944,7 @@ void updateScene() {
 
 	if (trans_car_z2 < 300) {
 		trans_car_z2 += speed_of_car2;
-		rotate_wheel_deg += (speed_of_car2 * 200);
+		rotate_wheel_deg2 += (speed_of_car2 * 200);
 		cout << "trans_car_z2 = " << trans_car_z2 << endl;
 	}
 
@@ -982,23 +982,6 @@ void loadTextures(GLuint texture, const char* filepath, int active_arg, const GL
 		fprintf(stderr, "WARNING: texture %s is not power-of-2 dimensions\n",
 			filepath);
 	}
-	int width_in_bytes = x * 4;
-	unsigned char *top = NULL;
-	unsigned char *bottom = NULL;
-	unsigned char temp = 0;
-	int half_height = y / 2;
-
-	for (int row = 0; row < half_height; row++) {
-		top = image_data + row * width_in_bytes;
-		bottom = image_data + (y - row - 1) * width_in_bytes;
-		for (int col = 0; col < width_in_bytes; col++) {
-			temp = *top;
-			*top = *bottom;
-			*bottom = temp;
-			top++;
-			bottom++;
-		}
-	}
 
 	glActiveTexture(active_arg);
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -1014,7 +997,7 @@ void loadTextures(GLuint texture, const char* filepath, int active_arg, const GL
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max_aniso);
 	// set the maximum!
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, max_aniso);
-	//return true;
+
 }
 
 void init()
@@ -1078,7 +1061,7 @@ void init()
 
 	loadTextures(textures[5], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\road_texture.jpg", GL_TEXTURE5, "roadTexture", 5);
 
-	loadTextures(textures[6], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\sky_texture.jpg", GL_TEXTURE6, "skyTexture", 6);
+	loadTextures(textures[6], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\sky_texture2.jpg", GL_TEXTURE6, "skyTexture", 6);
 
 	loadTextures(textures[7], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\yellow.jpg", GL_TEXTURE7, "yellowTexture", 7);
 
@@ -1125,15 +1108,7 @@ void keypress(unsigned char key, int x, int y) {
 	case '1':
 		item_look = 1;
 		break;
-	case '2':
-		item_look = 2;
-		break;
-	case '3':
-		item_look = 3;
-		break;
-	case '4':
-		item_look = 1;
-		break;
+
 
 	}
 }

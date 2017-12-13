@@ -3,7 +3,7 @@
 in vec2 Texcoord;
 in vec3 position_eye, normal_eye;
 uniform mat4 view_matrix;
-uniform vec3 light_pos_z;
+
 
 uniform sampler2D redTexture;
 uniform sampler2D blackTexture;
@@ -15,12 +15,13 @@ uniform sampler2D skyTexture;
 uniform sampler2D yellowTexture;
 
 uniform int texture_num;
+uniform float light_pos_z;
 
 // fixed point light properties
-vec3 light_position_world = vec3 (0.0, 7.0, light_pos_z);
+vec3 light_position_world = vec3 (0.0, 70.0, light_pos_z);
 vec3 Ls = vec3 (1.0, 1.0, 1.0); // white specular colour
 vec3 Ld = vec3 (0.7, 0.7, 0.7); // dull white diffuse light colour
-vec3 La = vec3 (0.2, 0.2, 0.2); // grey ambient colour
+vec3 La = vec3 (0.3, 0.3, 0.3); // grey ambient colour
 
 // surface reflectance
 vec3 Ks = vec3 (1.0, 1.0, 1.0); // fully reflect specular light
@@ -56,10 +57,10 @@ void main(){
 
 	// output colour is colour of text
 	if(texture_num == -1){
-		fragment_colour = vec4(1.0, 0, 0, 1.0);
+		fragment_colour = vec4(1.0, 0, 0, 1.0);		// red text
 	}	
 	else if(texture_num == -2){
-		fragment_colour = vec4(1.0, 1.0, 0.0, 1.0);
+		fragment_colour = vec4(1.0, 1.0, 0.0, 1.0);	// yellow text
 	}
 	else{
 		// output colour is lighting model and texture
@@ -80,7 +81,7 @@ void main(){
 			texel = texture(sandTexture, Texcoord);
 		}
 		else if(texture_num == 5){
-		texel = texture(roadTexture, Texcoord);
+			texel = texture(roadTexture, Texcoord);
 		}
 		else if(texture_num == 6){
 			texel = texture(skyTexture, Texcoord);
