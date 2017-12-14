@@ -11,6 +11,8 @@ This is a dump of the code used for my computer graphics project. Written using 
 
 **Video of the project**
 
+(Click the image)
+
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=EZf_Cm_JIDc
 " target="_blank"><img src="http://img.youtube.com/vi/EZf_Cm_JIDc/0.jpg" 
 alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" /></a>
