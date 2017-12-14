@@ -1,6 +1,3 @@
-
-
-
 #define _CRT_SECURE_NO_DEPRECATE
 //Some Windows Headers (For Time, IO, etc.)
 #include <windows.h>
@@ -9,10 +6,8 @@
 #include <GL/freeglut.h>
 #include <iostream>
 #include "maths_funcs.h"
-#include "text.h"
 
 // Assimp includes
-
 #include <assimp/cimport.h> // C importer
 #include <assimp/scene.h> // collects data
 #include <assimp/postprocess.h> // various extra operations
@@ -21,8 +16,7 @@
 #include <vector> // STL dynamic memory.
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
+#include "stb_image.h"		// lib to load images in for textures
 
 /*----------------------------------------------------------------------------
 MESH TO LOAD
@@ -56,21 +50,16 @@ int point_count9 = 0;
 int point_count10 = 0;
 
 
-
-
 // Macro for indexing vertex buffer
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
 using namespace std;
 GLuint shaderProgramID;
 
-
-unsigned int mesh_vao = 0;
 int width = 800;
 int height = 600;
 
 GLuint loc1, loc2, loc3;
-GLfloat rotate_y = 0.0f;
 GLuint vao1;
 GLuint vao2;
 GLuint vao3;
@@ -82,7 +71,6 @@ GLuint vao8;
 GLuint vao9;
 GLuint vao10;
 
-
 GLfloat view_x = -8.0f;
 GLfloat view_y = -5.0f;
 GLfloat view_z = -6.0f;
@@ -90,7 +78,6 @@ GLfloat view_z = -6.0f;
 GLfloat rotate_camera_x = 0.0f;
 GLfloat rotate_camera_y = -26.0f;
 GLfloat rotate_camera_z = 0.0f;
-GLfloat model_rotate = 0.0f;//90.0f;
 
 GLfloat trans_car_x = 3;
 GLfloat trans_car_y = 0.4;
@@ -104,7 +91,6 @@ GLfloat trans_car_z2 = -70;
 GLfloat speed_of_car1 = 0.25;
 GLfloat speed_of_car2 = 0.28;
 
-//
 GLfloat trans_liz_x = 20;
 GLfloat trans_liz_y = 0.8;
 GLfloat trans_liz_z = 305;
@@ -120,17 +106,6 @@ string speed_to_print;
 
 int item_look = 0;
 
-
-
-GLfloat offset = 1.0f;
-GLfloat pitch;
-GLfloat yaw;
-
-//GLuint texture;
-//GLuint texture0;
-//GLuint texture1;
-//GLuint texture2;
-//GLuint texture3;
 
 GLuint textures[8];
 
@@ -368,9 +343,7 @@ void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(shaderProgramID);
 
-
-
-	//Declare your uniform variables that will be used in your shader
+	//Declare  uniform variables that will be used in the shader
 	int matrix_location = glGetUniformLocation(shaderProgramID, "model_matrix");
 	int view_mat_location = glGetUniformLocation(shaderProgramID, "view_matrix");
 	int proj_mat_location = glGetUniformLocation(shaderProgramID, "proj_matrix");
@@ -378,7 +351,6 @@ void display() {
 	int light_pos_loc = glGetUniformLocation(shaderProgramID, "light_pos_z");
 
 	// Text drawing stuff here - red car
-	int x = 20, y = 560;
 	if (trans_car_z < 150)
 		speed = 50 + trans_car_z;
 	else
@@ -386,23 +358,21 @@ void display() {
 
 	speed_to_print = to_string(abs(speed));
 	speed_to_print = speed_to_print.substr(0, 5);
+
 	if (trans_car_z < 300)
 		speed_to_print = "Red car - " + speed_to_print + " km/h";
 	else
-		speed_to_print = "Finished!";
+		speed_to_print = "Finished!";		// car has reached the end of the road
 
 	glUniform1i(texture_num_loc, -1);
-	glWindowPos2f(x, y);
+	glWindowPos2f(20, 560);			// position text in top left corner
 	int len;
 	len = speed_to_print.size();
 	for (int i = 0; i < len; i++) {
-		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, speed_to_print[i]);
+		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, speed_to_print[i]);		// draws 1 char at time
 	}
 
 	// Text drawing stuff here - yellow car
-	x = 20;
-	y = 530;
-
 	if (trans_car_z < 150)
 		speed2 = 50 + trans_car_z2;
 	else
@@ -416,7 +386,7 @@ void display() {
 		speed_to_print = "Finished!";
 
 	glUniform1i(texture_num_loc, -2);
-	glWindowPos2f(x, y);
+	glWindowPos2f(20, 530);			// position text just below red text
 	len = speed_to_print.size();
 	for (int i = 0; i < len; i++) {
 		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, speed_to_print[i]);
@@ -424,7 +394,7 @@ void display() {
 
 
 
-	///////////////////////////////////// CAR SHELL, WINDOWS/ GRILL AND LIGHTS/ EXHAUST /////////////////////////////////////
+	///////////////////////////////////// RED CAR /////////////////////////////////////
 
 	// Root of the Hierarchy - Car shell
 	mat4 view = identity_mat4();
@@ -433,23 +403,21 @@ void display() {
 	model1 = rotate_y_deg(model1, rotate_y_car);
 	model1 = translate(model1, vec3(trans_car_x, trans_car_y, trans_car_z));
 
-
-
-	if(item_look == 0)
+	if(item_look == 0)		// Press 1 to go to free camera mode
 		view_z = -18.0f -trans_car_z;
+
 	view = translate(view, vec3(view_x, view_y, view_z));
 	view = rotate_x_deg(view, rotate_camera_x);
 	view = rotate_y_deg(view, rotate_camera_y);
 
-	
-
-	mat4 global1 = model1;
+	mat4 global1 = model1;		// save for root of hierarchy
 
 	glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, persp_proj.m);
 	glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, view.m);
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global1.m);
+
 	glUniform1i(texture_num_loc, 0);		// set the texture number to reference the correct image
-	GLfloat light_pos_z = trans_car_z;
+	GLfloat light_pos_z = trans_car_z;		// send the fragment shader the z-coord of car to move the light position
 	glUniform1f(light_pos_loc, light_pos_z);		// set the light position
 	glBindVertexArray(vao1);
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
@@ -459,7 +427,7 @@ void display() {
 	mat4 modelWindowsGrill = identity_mat4();
 	modelWindowsGrill = translate(modelWindowsGrill, vec3(0, -2, 0));
 
-	mat4 global1a = global1 * modelWindowsGrill;
+	mat4 global1a = global1 * modelWindowsGrill;		// join the hierarchy
 
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global1a.m);
 	glUniform1i(texture_num_loc, 1);
@@ -606,25 +574,25 @@ void display() {
 	glBindTexture(GL_TEXTURE_2D, textures[1]);
 	glDrawArrays(GL_TRIANGLES, 0, point_count7);
 
-	////////////////////////////////////////// YELLOW CAR /////////////////////////////////////////***************************
+	////////////////////////////////////////// YELLOW CAR /////////////////////////////////////////
 	// Root of the Hierarchy - Car shell	
 	mat4 car2_model = identity_mat4();
 	car2_model = rotate_y_deg(car2_model, rotate_y_car);
 	car2_model = translate(car2_model, vec3(trans_car_x2, trans_car_y2, trans_car_z2));
 
-	mat4 global2 = car2_model;
+	mat4 global2 = car2_model;			// save for root of hierarchy
 
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global2.m);
 	glUniform1i(texture_num_loc, 7);
 	glBindVertexArray(vao1);
-	glBindTexture(GL_TEXTURE_2D, textures[7]);
+	glBindTexture(GL_TEXTURE_2D, textures[7]);	// this will get the yellow texture for the car shell
 	glDrawArrays(GL_TRIANGLES, 0, point_count1);
 
 	// windows and grill
 	mat4 modelWindowsGrill2 = identity_mat4();
 	modelWindowsGrill2 = translate(modelWindowsGrill2, vec3(0, -2, 0));
 
-	mat4 global2a = global2 * modelWindowsGrill2;
+	mat4 global2a = global2 * modelWindowsGrill2;		// join the hierarchy
 
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global2a.m);
 	glUniform1i(texture_num_loc, 1);
@@ -856,7 +824,7 @@ void display() {
 	sky_model = translate(sky_model, vec3(0, 0, 0));
 	sky_model = rotate_y_deg(sky_model, 90.0f);
 
-	mat4 global_sky = global1 * sky_model;
+	mat4 global_sky = global1 * sky_model;		// add the sky box to the hierarchy of the red car
 
 	// update uniforms & draw
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global_sky.m);
@@ -886,8 +854,6 @@ void display() {
 	glutSwapBuffers();
 }
 
-//float speed_of_car = 0.1;
-
 GLfloat new_speed1 = 0.37;
 GLfloat new_speed2 = 0.4;
 
@@ -902,7 +868,8 @@ void updateScene() {
 		delta = 0.03f;
 	last_time = curr_time;
 
-	// red car movement 
+	////////////////////////////// RED CAR SPEED /////////////////////////////////////////////
+	// increase the 'speed' of the red car as it reaches certain points down the road
 	if (trans_car_z < -20 && trans_car_z > -30) {
 		speed_of_car1 = 0.28;
 	}
@@ -913,44 +880,38 @@ void updateScene() {
 		speed_of_car1 = 0.32;
 	}
 	else {
-		new_speed1 += 0.0002;
+		new_speed1 += 0.0002;		// red car eventually passes out the yellow car as it has twice the speed from trans_car_z > 0
 		speed_of_car1 = new_speed1;
 	}
 
+	// stop at the end of the road (trans_car_z = 300)
 	if (trans_car_z < 300) {
 		trans_car_z += speed_of_car1;
-		rotate_wheel_deg1 += (speed_of_car1 * 200);
+		rotate_wheel_deg1 += (speed_of_car1 * 200);		// angle of rotation for the wheels
 		cout << "trans_car_z = " << trans_car_z << endl;
 	}
 
-
-
-
-
-	// yellow car movement 
+	////////////////////////////// YELLOW CAR SPEED /////////////////////////////////////////////
+	// increase the 'speed' of the yellow car as it reaches certain points down the road
 	if (trans_car_z2 < -20 && trans_car_z2 > -30) {
 		speed_of_car2 = 0.3;
 	}
 	else if (trans_car_z2 < -10 && trans_car_z2 > -20) {
-		speed_of_car2 = 0.32;
+		speed_of_car2 = 0.32;	// initially it is faster than the red car
 	}
 	else if (trans_car_z2 < 0 && trans_car_z2 > -10) {
 		speed_of_car2 = 0.37;
 	}
 	else {
-		new_speed2 += 0.00001;
+		new_speed2 += 0.00001;		// half the speed of the red car from here onwards
 		speed_of_car2 = new_speed2;
 	}
 
 	if (trans_car_z2 < 300) {
 		trans_car_z2 += speed_of_car2;
-		rotate_wheel_deg2 += (speed_of_car2 * 200);
+		rotate_wheel_deg2 += (speed_of_car2 * 200);		// angle of rotation for the wheels
 		cout << "trans_car_z2 = " << trans_car_z2 << endl;
 	}
-
-
-
-
 
 	// lizard movement
 	if (rotate_count % 4 == 0 && trans_liz_z < 3) {
@@ -962,7 +923,7 @@ void updateScene() {
 
 	rotate_count++;
 
-	if (speed_to_print == "Finished!"){
+	if (speed_to_print == "Finished!"){		// lizard starts moving when the cars finish
 		trans_liz_x -= 0.1f;
 	}
 	// Draw the next frame
@@ -1004,8 +965,8 @@ void init()
 {
 	// Set up the shaders
 	GLuint shaderProgramID = CompileShaders();
-	//GLuint texture0;
 
+	// load and bind all the meshes
 	load_mesh(MESH_NAME1);
 	glGenVertexArrays(1, &vao1);
 	point_count1 = generateObjectBufferMesh(vao1);
@@ -1046,7 +1007,7 @@ void init()
 	glGenVertexArrays(1, &vao10);
 	point_count10 = generateObjectBufferMesh(vao10);
 
-
+	// load and bind all the textures
 	glGenTextures(8, textures);
 
 	loadTextures(textures[0], "C:\\Users\\Joseph\\Documents\\College\\4th Year\\CS4052_Graphics\\Lab5_Scene\\red.jpg", GL_TEXTURE0, "redTexture", 0);
@@ -1067,8 +1028,6 @@ void init()
 
 }
 
-//bool look_flag = false;
-
 // Placeholder code for the keypress
 void keypress(unsigned char key, int x, int y) {
 
@@ -1076,7 +1035,8 @@ void keypress(unsigned char key, int x, int y) {
 	case 27:
 		exit(0);
 		break;
-
+	
+	//camera movement
 	case 'w':
 		view_x = view_x + 1.0f;
 		cout << "view_x: " << view_x << endl;
@@ -1103,10 +1063,11 @@ void keypress(unsigned char key, int x, int y) {
 		view_z = view_z + 1.0f;
 		cout << "view_z: " << view_z << endl;
 		break;
+
 	case '0':
 		item_look = 0;
 	case '1':
-		item_look = 1;
+		item_look = 1;			// goes into free camera
 		break;
 
 
@@ -1116,6 +1077,7 @@ void keypress(unsigned char key, int x, int y) {
 void specialKeypress(int key, int x, int y) {
 
 	switch (key) {
+	// camera rotaion
 	case GLUT_KEY_LEFT:
 		rotate_camera_y = rotate_camera_y - 2;
 		cout << "rotate_camera_y: " << rotate_camera_y << endl;
@@ -1129,15 +1091,11 @@ void specialKeypress(int key, int x, int y) {
 	case GLUT_KEY_UP:
 		rotate_camera_x = rotate_camera_x - 2;
 		cout << "rotate_camera_x: " << rotate_camera_x << endl;
-		//rotate_camera_z = rotate_camera_z - 2;
-		//cout << "rotate_camera_z: " << rotate_camera_z << endl;
 		break;
 
 	case GLUT_KEY_DOWN:
 		rotate_camera_x = rotate_camera_x + 2;
 		cout << "rotate_camera_x: " << rotate_camera_x << endl;
-		//rotate_camera_z = rotate_camera_z + 2;
-		//cout << "rotate_camera_z: " << rotate_camera_z << endl;
 		break;
 	}
 }
@@ -1150,7 +1108,6 @@ int main(int argc, char** argv) {
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 	glutInitWindowSize(width, height);
 	glutCreateWindow("Hello Triangle");
-
 
 	// Tell glut where the display function is
 	glutDisplayFunc(display);
@@ -1170,5 +1127,6 @@ int main(int argc, char** argv) {
 	init();
 	// Begin infinite event loop
 	glutMainLoop();
+
 	return 0;
 }
